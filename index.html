@@ -1,0 +1,351 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LOK SABHA KOMBAT 7: Khela Hobe Edition (3D Tekken Brawler)</title>
+    <link rel="stylesheet" href="/src/styles.css" />
+  </head>
+  <body>
+    <!-- 3D WebGL Arena Container -->
+    <div id="webgl-container"></div>
+
+    <!-- ================= 1. MAIN MENU SCREEN ================= -->
+    <section id="screen-main-menu" class="ui-layer interactive-screen">
+      <div class="main-menu-wrap">
+        <div class="top-ticker">
+          <span class="breaking-pill">BREAKING NEWS</span>
+          <span>
+            THE NATION WANTS TO KNOW: NARENDRA MODI (56-Inch Saffron Karate) vs MAMATA BANERJEE (Khela Hobe Chappal-Jutsu) — LIVE IN 3D!
+          </span>
+        </div>
+
+        <div class="hero-center">
+          <div class="title-block">
+            <span class="edition-tag">IRON FIST TOURNAMENT • 3D WEBGL EDITION</span>
+            <h1 class="game-logo">LOK SABHA<br />KOMBAT 7</h1>
+            <p class="game-subtitle">🔥 KHELA HOBE vs MITRON — Stylized 3D Tekken Fighting Game</p>
+            <div class="versus-spotlight-pill">
+              <span>🧡 <strong>MODI JI</strong> (Saffron Jacket &amp; Lotus Mic)</span>
+              <span>⚡ VS ⚡</span>
+              <span>💙 <strong>MAMATA DIDI</strong> (Blue-Border Saree &amp; Chappal)</span>
+            </div>
+          </div>
+
+          <div class="menu-actions-panel">
+            <button id="btn-instant-khela" type="button" class="btn-instant-highlight">
+              <span>⚡ INSTANT CLASH: MODI vs MAMATA</span>
+              <small>Jump straight into Sansad Akhada (1P vs CPU)</small>
+            </button>
+
+            <button type="button" class="menu-btn" data-mode-btn="arcade">
+              <span>🏆 ARCADE TOURNAMENT</span>
+              <span class="sub-hint">3-Stage PM Ladder</span>
+            </button>
+
+            <button type="button" class="menu-btn" data-mode-btn="versus_cpu">
+              <span>⚔️ 1P VS CPU (CUSTOM CLASH)</span>
+              <span class="sub-hint">Pick Leader &amp; Arena</span>
+            </button>
+
+            <button type="button" class="menu-btn" data-mode-btn="versus_pvp">
+              <span>🎮 LOCAL 2-PLAYER VERSUS</span>
+              <span class="sub-hint">Shared Keyboard</span>
+            </button>
+
+            <button type="button" class="menu-btn" data-mode-btn="practice">
+              <span>🥋 PRACTICE &amp; FRAME LAB</span>
+              <span class="sub-hint">Combo &amp; Dummy Training</span>
+            </button>
+
+            <div style="display: flex; gap: 8px; margin-top: 4px">
+              <button type="button" class="menu-btn" style="flex: 1" data-open-movelist>
+                <span>📜 MOVE LIST</span>
+              </button>
+              <button type="button" class="menu-btn" style="flex: 1" data-open-settings>
+                <span>⚙️ SETTINGS</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="menu-footer-bar">
+          <div>
+            <strong>P1 Controls:</strong> Move <kbd class="kbd-badge">W A S D</kbd> • Sidestep <kbd class="kbd-badge">Q / E</kbd> •
+            Limbs <kbd class="kbd-badge">U I O P</kbd> • Throw <kbd class="kbd-badge">G</kbd> • Power Crush / Rage Art <kbd class="kbd-badge">H</kbd>
+          </div>
+          <div>
+            <strong>Signature Moves:</strong> Sky Launcher <kbd class="kbd-badge">S+D+I</kbd> • Low Sweep <kbd class="kbd-badge">S+O</kbd> • Hopkick <kbd class="kbd-badge">W+P</kbd>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= 2. CHARACTER & STAGE SELECT SCREEN ================= -->
+    <section id="screen-char-select" class="ui-layer interactive-screen hidden">
+      <div class="char-select-wrap">
+        <div class="select-header">
+          <div>
+            <span class="edition-tag" id="char-select-mode-title">1P VS CPU — ELECTION CLASH</span>
+            <h2 style="font-size: 1.65rem; font-weight: 900">CHOOSE YOUR CONTENDERS &amp; ARENA</h2>
+          </div>
+          <div style="display: flex; gap: 10px">
+            <button id="btn-back-to-main" type="button" class="menu-btn">⬅ BACK TO MENU</button>
+            <button type="button" class="menu-btn" data-open-movelist>📜 MOVE LIST</button>
+          </div>
+        </div>
+
+        <div class="select-grid-columns">
+          <div class="player-roster-box">
+            <h3>PLAYER 1 CHAMPION</h3>
+            <div id="roster-p1-cards" class="roster-cards-grid"></div>
+          </div>
+
+          <div class="player-roster-box">
+            <h3>PLAYER 2 / OPPONENT</h3>
+            <div id="roster-p2-cards" class="roster-cards-grid"></div>
+          </div>
+        </div>
+
+        <div class="stage-bar-box">
+          <div style="font-weight: 900; font-size: 0.9rem; color: #fde047">SELECT 3D ARENA:</div>
+          <div id="stage-select-cards" class="stage-cards-row"></div>
+          <button id="btn-start-battle" type="button" class="btn-primary-cta">FIGHT NOW! ⚡</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= 3. IN-GAME FIGHT HUD ================= -->
+    <section id="screen-hud" class="ui-layer hidden">
+      <div class="hud-top-bar">
+        <!-- Player 1 Health & Info -->
+        <div class="fighter-hud-col p1-col">
+          <div class="hud-name-row">
+            <span id="hud-p1-name" class="hud-fighter-name">NARENDRA MODI</span>
+            <span id="hud-p1-title" class="hud-fighter-sub">56-Inch Saffron Supreme</span>
+            <span id="hud-p1-rage-tag" class="rage-pill hidden">RAGE! PRESS H</span>
+          </div>
+          <div class="hp-bar-outer">
+            <div id="hud-p1-hp-fill" class="hp-bar-fill"></div>
+          </div>
+          <div id="hud-p1-orbs" class="round-orbs-row"></div>
+        </div>
+
+        <!-- Center Clock & Quick Buttons -->
+        <div class="hud-center-clock">
+          <div id="hud-stage-label" style="font-size: 0.7rem; font-weight: 800; color: #94a3b8; letter-spacing: 0.08em">
+            SANSAD AKHADA
+          </div>
+          <div id="hud-timer" class="timer-box">60</div>
+          <div class="hud-top-actions">
+            <button id="btn-hud-pause" type="button" class="btn-hud-mini">⏸ PAUSE (ESC)</button>
+            <button type="button" class="btn-hud-mini" data-open-movelist>📜 MOVES</button>
+            <button type="button" class="btn-hud-mini" data-open-settings>⚙️</button>
+          </div>
+        </div>
+
+        <!-- Player 2 Health & Info -->
+        <div class="fighter-hud-col p2-col">
+          <div class="hud-name-row">
+            <span id="hud-p2-name" class="hud-fighter-name">MAMATA BANERJEE</span>
+            <span id="hud-p2-title" class="hud-fighter-sub">Royal Bengal Hurricane</span>
+            <span id="hud-p2-rage-tag" class="rage-pill hidden">RAGE ACTIVE!</span>
+          </div>
+          <div class="hp-bar-outer">
+            <div id="hud-p2-hp-fill" class="hp-bar-fill"></div>
+          </div>
+          <div id="hud-p2-orbs" class="round-orbs-row"></div>
+        </div>
+      </div>
+
+      <!-- Center Announcements, Comic Callout Bubbles & Combo Counters -->
+      <div class="hud-mid-overlay">
+        <div id="hud-p1-callout" class="callout-bubble hidden"></div>
+        <div id="hud-p2-callout" class="callout-bubble hidden"></div>
+
+        <div id="hud-p1-combo" class="combo-counter-box hidden"></div>
+        <div id="hud-p2-combo" class="combo-counter-box hidden"></div>
+
+        <div id="hud-center-banner" class="center-banner hidden">
+          <div id="banner-title">ROUND 1</div>
+          <div id="banner-subtitle">MODI JI VS DIDI</div>
+        </div>
+      </div>
+
+      <!-- Bottom Telemetry & Interactive Arcade Pad -->
+      <div class="hud-bottom-area">
+        <div id="practice-telemetry-bar" class="practice-bar hidden">
+          <div>
+            <strong>Last Move:</strong> <span id="practice-last-move" style="color: #fde047">Ready</span>
+          </div>
+          <div>
+            <strong>Frame Data:</strong> <span id="practice-frame-adv" style="color: #38bdf8">+0 (Neutral)</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px">
+            <label for="select-dummy-behavior"><strong>Dummy Action:</strong></label>
+            <select id="select-dummy-behavior" style="background: #0f172a; color: #fff; padding: 3px 8px; border-radius: 5px">
+              <option value="stand">Stand Neutral</option>
+              <option value="crouch">Crouch</option>
+              <option value="guard_all">Auto-Guard All</option>
+              <option value="cpu_fight">Fight Back (CPU)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="arcade-deck-bar">
+          <div class="vpad-group">
+            <button type="button" class="vbtn" data-vbtn="left">◀ BACK / GUARD (A)</button>
+            <button type="button" class="vbtn" data-vbtn="down">▼ CROUCH (S)</button>
+            <button type="button" class="vbtn" data-vbtn="up">▲ JUMP (W)</button>
+            <button type="button" class="vbtn" data-vbtn="right">▶ FORWARD (D)</button>
+            <button type="button" class="vbtn" data-vbtn="ssUp">⤴ SIDESTEP (Q)</button>
+          </div>
+
+          <div class="vpad-group">
+            <button type="button" class="vbtn" data-vbtn="lp">👊 1: JAB (U)</button>
+            <button type="button" class="vbtn" data-vbtn="rp">💥 2: HEAVY (I)</button>
+            <button type="button" class="vbtn" data-vbtn="lk">🦵 3: KICK (O)</button>
+            <button type="button" class="vbtn" data-vbtn="rk">🌀 4: ROUNDHOUSE (P)</button>
+            <button type="button" class="vbtn vbtn-special" data-vbtn="grab">🤝 THROW (G)</button>
+            <button type="button" class="vbtn vbtn-rage" data-vbtn="rage">🔥 ARMOR / RAGE ART (H)</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= 4. GAME OVER / VICTORY SCREEN ================= -->
+    <section id="screen-gameover" class="ui-layer interactive-screen hidden">
+      <div class="gameover-wrap">
+        <div class="gameover-card">
+          <span class="edition-tag">ELECTION KOMBAT RESULT</span>
+          <h2 id="gameover-title" style="font-size: 1.9rem; font-weight: 900; color: #fde047">
+            NARENDRA MODI WINS!
+          </h2>
+          <p id="gameover-quote" style="font-size: 1.05rem; color: #e2e8f0; font-style: italic">
+            "Abki Baar — Full Knockout Sarkar!"
+          </p>
+          <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 8px">
+            <button id="btn-gameover-rematch" type="button" class="btn-primary-cta">REMATCH (PLAY AGAIN)</button>
+            <button id="btn-gameover-charselect" type="button" class="menu-btn">👥 CHANGE LEADERS / STAGE</button>
+            <button id="btn-gameover-mainmenu" type="button" class="menu-btn">🏠 RETURN TO MAIN MENU</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= 5. PAUSE MODAL (<dialog closedby="any">) ================= -->
+    <dialog id="modal-pause" class="game-modal" closedby="any" aria-labelledby="pause-modal-title">
+      <div class="modal-header">
+        <h2 id="pause-modal-title">⏸ PARLIAMENT RECESS (PAUSED)</h2>
+        <button type="button" class="btn-hud-mini" data-close-dialog="modal-pause">✕ ESC</button>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 10px">
+        <button id="btn-pause-resume" type="button" class="btn-primary-cta">▶ RESUME BATTLE</button>
+        <button id="btn-pause-restart" type="button" class="menu-btn">🔄 RESTART MATCH</button>
+        <button type="button" class="menu-btn" data-open-movelist>📜 VIEW MOVE LIST &amp; COMBOS</button>
+        <button type="button" class="menu-btn" data-open-settings>⚙️ AUDIO &amp; MATCH SETTINGS</button>
+        <button id="btn-pause-charselect" type="button" class="menu-btn">👥 CHARACTER &amp; STAGE SELECT</button>
+        <button id="btn-pause-mainmenu" type="button" class="menu-btn">🏠 QUIT TO MAIN MENU</button>
+      </div>
+    </dialog>
+
+    <!-- ================= 6. MOVE LIST & CONTROLS MODAL (<dialog closedby="any">) ================= -->
+    <dialog id="modal-movelist" class="game-modal" closedby="any" aria-labelledby="movelist-modal-title">
+      <div class="modal-header">
+        <h2 id="movelist-modal-title">📜 OFFICIAL MOVE LIST &amp; FRAME DATA</h2>
+        <button type="button" class="btn-hud-mini" data-close-dialog="modal-movelist">✕ CLOSE</button>
+      </div>
+
+      <p style="font-size: 0.84rem; color: #cbd5e1; margin-bottom: 12px">
+        <strong>Tekken Combat Rules:</strong> Hold <strong>Back (A)</strong> to guard HIGH &amp; MID attacks. Hold
+        <strong>Down+Back (S+A)</strong> to guard LOW sweeps and duck under HIGH jabs. Launch opponents into the air with
+        <strong>S+D+I (df+2)</strong> or <strong>W+P (uf+4)</strong> and juggle them with <strong>U, I, U (1,2,1)</strong>!
+      </p>
+
+      <div id="movelist-fighter-tabs" class="movelist-tabs"></div>
+
+      <table class="movelist-table">
+        <thead>
+          <tr>
+            <th>Move &amp; Battle Cry</th>
+            <th>Input</th>
+            <th>Hit Level</th>
+            <th>Damage</th>
+            <th>Startup</th>
+            <th>Properties</th>
+          </tr>
+        </thead>
+        <tbody id="movelist-table-body"></tbody>
+      </table>
+    </dialog>
+
+    <!-- ================= 7. SETTINGS MODAL (<dialog closedby="any">) ================= -->
+    <dialog id="modal-settings" class="game-modal" closedby="any" aria-labelledby="settings-modal-title">
+      <div class="modal-header">
+        <h2 id="settings-modal-title">⚙️ GAME &amp; AUDIO SETTINGS</h2>
+        <button type="button" class="btn-hud-mini" data-close-dialog="modal-settings">✕ SAVE &amp; CLOSE</button>
+      </div>
+
+      <div class="settings-grid">
+        <div class="setting-row">
+          <label for="setting-master-vol"><strong>Master Volume</strong> (<span id="val-master-vol">85%</span>)</label>
+          <input id="setting-master-vol" type="range" min="0" max="100" value="85" />
+        </div>
+
+        <div class="setting-row">
+          <label for="setting-sfx-vol"><strong>Hit Sparks &amp; Crowd SFX</strong> (<span id="val-sfx-vol">90%</span>)</label>
+          <input id="setting-sfx-vol" type="range" min="0" max="100" value="90" />
+        </div>
+
+        <div class="setting-row">
+          <label for="setting-bgm-vol"><strong>Desi-Cyber Dhol Synth BGM</strong> (<span id="val-bgm-vol">55%</span>)</label>
+          <input id="setting-bgm-vol" type="range" min="0" max="100" value="55" />
+        </div>
+
+        <div class="setting-row">
+          <label for="setting-announcer"><strong>Voice Announcer &amp; Catchphrases</strong></label>
+          <input id="setting-announcer" type="checkbox" checked />
+        </div>
+
+        <div class="setting-row">
+          <label for="setting-difficulty"><strong>CPU AI Difficulty</strong></label>
+          <select id="setting-difficulty">
+            <option value="easy">Easy (Karyakarta)</option>
+            <option value="medium" selected>Medium (Cabinet Minister)</option>
+            <option value="hard">Hard (Chanakya Mastermind)</option>
+            <option value="tekken_god">Tekken God Prime Minister</option>
+          </select>
+        </div>
+
+        <div class="setting-row">
+          <label for="setting-rounds"><strong>Rounds to Win Match</strong></label>
+          <select id="setting-rounds">
+            <option value="1">1 Round (Quick Poll)</option>
+            <option value="2" selected>2 Rounds (Best of 3)</option>
+            <option value="3">3 Rounds (Best of 5)</option>
+          </select>
+        </div>
+
+        <div class="setting-row">
+          <label for="setting-timer"><strong>Round Duration Timer</strong></label>
+          <select id="setting-timer">
+            <option value="30">30 Seconds</option>
+            <option value="60" selected>60 Seconds</option>
+            <option value="99">99 Seconds</option>
+            <option value="0">Infinite (No Timer)</option>
+          </select>
+        </div>
+
+        <div class="setting-row">
+          <label for="setting-quality"><strong>3D Graphics &amp; Shadows Quality</strong></label>
+          <select id="setting-quality">
+            <option value="high" selected>High (Soft Shadows + Native HiDPI)</option>
+            <option value="medium">Medium (Performance Mode)</option>
+          </select>
+        </div>
+      </div>
+    </dialog>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
