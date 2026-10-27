@@ -129,17 +129,12 @@ export class GameManager {
     this.callbacks.onCalloutBubble(1, this.p1.profile.catchphrases.intro);
     this.callbacks.onCalloutBubble(2, this.p2.profile.catchphrases.intro);
 
-    this.audio.speakAnnouncer(
-      this.mode === 'practice'
-        ? 'Practice Mode. Khela Hobe!'
-        : `Round ${this.currentRound}. Get Ready for the Next Battle!`,
-      0.82,
-      1.05
-    );
+    // Play Player 1's iconic meme voice clip at Round Intro!
+    this.audio.playMemeClip(this.p1.profile.memeClips.intro, true);
 
     window.setTimeout(() => {
       if (!this.isInMenu && this.roundPhase === 'INTRO') {
-        this.callbacks.onAnnounceBanner('FIGHT!!', 'KHELA HOBE • MITRON!', '#00e5ff', 850);
+        this.callbacks.onAnnounceBanner('FIGHT!!', 'HUMBA HUMBA • LAUDEYAM BHOJYAM!', '#00e5ff', 850);
         this.audio.playCrowdCheer();
       }
     }, 1250);
@@ -319,7 +314,9 @@ export class GameManager {
       this.callbacks.onCalloutBubble(fighter.playerIndex, move.battleCry, move.name);
       if (move.rageArt) {
         this.sceneMgr.triggerDramaticZoom(1.65);
-        this.audio.speakAnnouncer(move.battleCry, fighter.profile.voicePitch, fighter.profile.voiceRate);
+        this.audio.playMemeClip(fighter.profile.memeClips.rage, true);
+      } else if (move.launches || move.powerCrush || move.sfxType === 'throw') {
+        this.audio.playMemeClip(fighter.profile.memeClips.special, true);
       }
     }
   }
@@ -459,8 +456,8 @@ export class GameManager {
       move.rageArt ? 'rage' : move.sfxType === 'throw' ? 'heavy' : move.sfxType
     );
 
-    // Fun Catchphrase Comic Callout on Big Hits / Counter Hits / Combos!
-    if (isCounterHit || move.launches || move.sfxType === 'throw' || defender.comboHitsTaken >= 3) {
+    // Fun Catchphrase Comic Callout & Real Meme Voice on Big Hits / Counter Hits / Combos!
+    if (isCounterHit || move.launches || move.sfxType === 'throw' || move.sfxType === 'heavy' || defender.comboHitsTaken >= 2) {
       const phrases = attacker.profile.catchphrases.hit;
       const randomCry = phrases[Math.floor(Math.random() * phrases.length)];
       this.callbacks.onCalloutBubble(
@@ -468,6 +465,9 @@ export class GameManager {
         isCounterHit ? `COUNTER! ${randomCry}` : randomCry,
         `${defender.comboHitsTaken} HIT (${defender.comboDamageTaken} DMG)`
       );
+      const pool = attacker.profile.memeClips.hitPool;
+      const clipUrl = pool[Math.floor(Math.random() * pool.length)];
+      this.audio.playMemeClip(clipUrl, false);
     }
 
     // Check KO!
@@ -540,7 +540,7 @@ export class GameManager {
 
     this.sceneMgr.triggerDramaticZoom(1.7);
     this.audio.playCrowdCheer();
-    this.audio.speakAnnouncer(`K.O.! ${winner.profile.name} wins!`, 0.78, 1.0);
+    this.audio.playMemeClip(winner.profile.memeClips.win, true);
 
     this.callbacks.onAnnounceBanner(
       'K.O.!!',

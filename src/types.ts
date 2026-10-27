@@ -55,6 +55,14 @@ export interface FighterProfile {
     rage: string;
     hit: string[];
   };
+  memeClips: {
+    select: string;
+    intro: string;
+    special: string;
+    rage: string;
+    win: string;
+    hitPool: string[];
+  };
   stats: {
     power: number;     // 1-10
     speed: number;     // 1-10

@@ -10,10 +10,24 @@ export const FIGHTER_PROFILES: Record<FighterId, FighterProfile> = {
     origin: '7 Lok Kalyan Marg Arena',
     signatureProp: 'lotus_mic',
     catchphrases: {
-      intro: 'MITRON! Taiyaar ho jaiye!',
-      win: 'Abki Baar — Full Knockout Sarkar!',
-      rage: 'MITRON!! SURGICAL STRIKE!!',
-      hit: ['MITRON!', '56 INCH!', 'VIKAS PUNCH!', 'WAH MODIJI WAH!', 'MASTERSTROKE!']
+      intro: 'Is Sajjan Ko Kya Takleef Hai Bhai?!',
+      win: 'WAH MODIJI WAH! Sab Changasi!',
+      rage: 'ANDREN RAJYAM LAUDEYAM BHOJYAM!!',
+      hit: ['LAUDEYAM BHOJYAM!', 'KYA TAKLEEF HAI BHAI!', 'WAH MODIJI WAH!', 'SAB CHANGASI!', '56 INCH!']
+    },
+    memeClips: {
+      select: '/sounds/modi_wah.mp3',
+      intro: '/sounds/modi_kya_takleef.mp3',
+      special: '/sounds/modi_lavden_bhojyam.mp3',
+      rage: '/sounds/modi_bhojyam.mp3',
+      win: '/sounds/modi_sab_changasi.mp3',
+      hitPool: [
+        '/sounds/modi_lavden_bhojyam.mp3',
+        '/sounds/modi_kya_takleef.mp3',
+        '/sounds/modi_wah.mp3',
+        '/sounds/modi_bkl.mp3',
+        '/sounds/modi_bhojyam.mp3'
+      ]
     },
     stats: { power: 10, speed: 8, range: 9, drama: 10 },
     colors: {
@@ -42,10 +56,22 @@ export const FIGHTER_PROFILES: Record<FighterId, FighterProfile> = {
     origin: 'Nabanna Howrah Rooftop',
     signatureProp: 'hawai_chappal',
     catchphrases: {
-      intro: 'Ebar KHELA HOBE!! Hamba Hamba!',
-      win: 'Joy Bangla! Didi ke rokte parbe na!',
-      rage: 'HAMBA HAMBA! RAMBA RAMBA! KHELA HOBE!!',
-      hit: ['KHELA HOBE!', 'HAMBA HAMBA!', 'CHAPPAL SHOT!', 'BAMBA BAMBA!', 'JOY BANGLA!']
+      intro: 'HUMBA HUMBA! RUMBA RUMBA! Kamba Kamba!',
+      win: 'Ei Bosun Toh! Dumba Dumba Bamba Bamba!',
+      rage: 'HUMBA HUMBA RUMBA RUMBA BAMBA BAMBA!!',
+      hit: ['HUMBA HUMBA!', 'RUMBA RUMBA!', 'KAMBA KAMBA!', 'EI BOSUN TOH!', 'KHELA HOBE!']
+    },
+    memeClips: {
+      select: '/sounds/mamata_humba_rumba.mp3',
+      intro: '/sounds/mamata_ei_bosun.mp3',
+      special: '/sounds/mamata_humba_rumba.mp3',
+      rage: '/sounds/mamata_humba_rumba.mp3',
+      win: '/sounds/mamata_clip.mp3',
+      hitPool: [
+        '/sounds/mamata_humba_rumba.mp3',
+        '/sounds/mamata_ei_bosun.mp3',
+        '/sounds/mamata_clip.mp3'
+      ]
     },
     stats: { power: 9, speed: 10, range: 9, drama: 10 },
     colors: {
@@ -74,10 +100,20 @@ export const FIGHTER_PROFILES: Record<FighterId, FighterProfile> = {
     origin: 'ITO Dharna Flyover',
     signatureProp: 'muffler_broom',
     catchphrases: {
-      intro: 'Sab mile huye hain ji! Jhadu chalega!',
-      win: 'Free Bijli, Free Paani, Free Knockout Ji!',
-      rage: 'MAHA DHARNA!! JHADU TORNADO JI!!',
-      hit: ['MILE HUYE HAIN JI!', 'JHADU SWEEP!', 'FREE HIT JI!', 'KHOFF KHOFF!', 'AAM AADMI!']
+      intro: 'Pareshan ho gaye hum dhai saal se... TOH KAR NA!!',
+      win: 'Kar na phir! Hum bhi pareshan ho gaye!',
+      rage: 'TOH KAR NA!! SAB MILE HUYE HAIN JI!!',
+      hit: ['TOH KAR NA!!', 'PARESHAN HO GAYE!', 'KAR NA PHIR!', 'JHADU SWEEP!', 'AAM AADMI!']
+    },
+    memeClips: {
+      select: '/sounds/kejriwal_toh_kar_na.mp3',
+      intro: '/sounds/kejriwal_toh_kar_na.mp3',
+      special: '/sounds/kejriwal_toh_kar_na.mp3',
+      rage: '/sounds/kejriwal_toh_kar_na.mp3',
+      win: '/sounds/kejriwal_toh_kar_na.mp3',
+      hitPool: [
+        '/sounds/kejriwal_toh_kar_na.mp3'
+      ]
     },
     stats: { power: 8, speed: 9, range: 10, drama: 10 },
     colors: {
@@ -106,10 +142,22 @@ export const FIGHTER_PROFILES: Record<FighterId, FighterProfile> = {
     origin: 'Kanyakumari-to-Kashmir Highway',
     signatureProp: 'padyatra_torch',
     catchphrases: {
-      intro: 'Daro Mat! Mohabbat ki Dukaan khul gayi!',
-      win: 'Khatakhat! Khatakhat! Khatakhat Knockout!',
-      rage: 'KHATAKHAT! KHATAKHAT! BHARAT JODO SMASH!!',
-      hit: ['KHATAKHAT!', 'DARO MAT!', 'PADYATRA KICK!', 'SYSTEM HANG!', 'T-SHIRT POWER!']
+      intro: 'Maza Aaya! Aur yeh jo maza hai, sabko dena chahta hoon!',
+      win: 'KHATAM! TATA! GOODBYE! GAYA!',
+      rage: 'KHATAM!! TATA!! GOODBYE!! GAYA!!',
+      hit: ['KHATAM!', 'TATA GOODBYE!', 'MAZA AAYA!', 'GAYA!', 'KHATAKHAT!']
+    },
+    memeClips: {
+      select: '/sounds/rahul_maza_aaya.mp3',
+      intro: '/sounds/rahul_maza_aaya.mp3',
+      special: '/sounds/rahul_khatam_short.mp3',
+      rage: '/sounds/rahul_khatam_tata.mp3',
+      win: '/sounds/rahul_khatam_tata.mp3',
+      hitPool: [
+        '/sounds/rahul_khatam_short.mp3',
+        '/sounds/rahul_maza_aaya.mp3',
+        '/sounds/rahul_khatam_tata.mp3'
+      ]
     },
     stats: { power: 9, speed: 9, range: 8, drama: 9 },
     colors: {
@@ -195,16 +243,16 @@ export function createMovelistForFighter(fighterId: FighterId): Record<string, M
       jab121: 'Atmanirbhar Spinning Backfist',
       jab124: 'Digital India High Kick',
       heavy2: 'Teleprompter Check Hook',
-      df2: 'MITRON! Electric Uppercut',
+      df2: 'LAUDEYAM BHOJYAM! Sky Uppercut',
       f2: 'Vikas Bullet Train Lunge',
       low3: 'Demonetization Carpet Sweep',
-      hop4: 'Vishwaguru Flying Kick',
-      throwName: 'Bear-Hug Diplomacy Slam',
+      hop4: 'Wah Modiji Wah Flying Kick',
+      throwName: 'Kya Takleef Hai Bhai Bear-Hug',
       powerCrush: '56-Inch Chest Armor Impact',
-      rageArt: 'RAGE ART: Surgical Strike 56-Inch Lotus Finale',
-      cryDf2: 'MITRON!!',
-      cryLow: 'NOTE BANDI!',
-      cryThrow: 'GALEY MILO MITRON!'
+      rageArt: 'RAGE ART: Andren Rajyam Laudeyam Bhojyam Finale',
+      cryDf2: 'LAUDEYAM BHOJYAM!!',
+      cryLow: 'SAB CHANGASI!',
+      cryThrow: 'KYA TAKLEEF HAI BHAI?!'
     },
     mamata: {
       jab1: 'Didi Rapid Slap',
@@ -212,16 +260,16 @@ export function createMovelistForFighter(fighterId: FighterId): Record<string, M
       jab121: 'Kalighat Tornado Backfist',
       jab124: 'Rosogolla High Roundhouse',
       heavy2: 'Nabanna File Smash',
-      df2: 'KHELA HOBE! Sky Uppercut',
+      df2: 'HUMBA HUMBA RUMBA RUMBA! Sky Uppercut',
       f2: 'Royal Bengal Tiger Lunge',
-      low3: 'Hamba-Hamba Ankle Sweep',
-      hop4: 'Khela Hobe Bicycle Kick',
-      throwName: 'Didi O Didi Wheelchair Spin Throw',
-      powerCrush: 'Bomba-Bomba Street Barricade Charge',
-      rageArt: 'RAGE ART: Hamba Hamba Ramba Ramba Cyclone',
-      cryDf2: 'KHELA HOBE!!',
-      cryLow: 'HAMBA HAMBA!',
-      cryThrow: 'CHAPPAL KHAOGE?!'
+      low3: 'Kamba-Kamba Ankle Sweep',
+      hop4: 'Dumba-Dumba Bicycle Kick',
+      throwName: 'Ei Bosun Toh Chappal Throw',
+      powerCrush: 'Bamba-Bamba Street Barricade Charge',
+      rageArt: 'RAGE ART: Humba Humba Rumba Rumba Cyclone',
+      cryDf2: 'HUMBA HUMBA RUMBA RUMBA!!',
+      cryLow: 'KAMBA KAMBA!',
+      cryThrow: 'EI BOSUN TOH!'
     },
     kejriwal: {
       jab1: 'RTI Notice Jab',
@@ -229,16 +277,16 @@ export function createMovelistForFighter(fighterId: FighterId): Record<string, M
       jab121: 'Swaraj Broom Spin Strike',
       jab124: 'Odd-Even High Kick',
       heavy2: 'Muffler Whip Hook',
-      df2: 'Aam Aadmi Sky Broom Launcher',
+      df2: 'TOH KAR NA!! Sky Broom Launcher',
       f2: 'VIP Wagon-R Dash Punch',
       low3: 'Mega Jhadu Clean-Sweep',
       hop4: 'Dharna Hopkick Launcher',
-      throwName: 'Ink-Splash Grab & Toss',
+      throwName: 'Pareshan Ho Gaye Grab & Toss',
       powerCrush: 'Winter Muffler Armor Shield',
-      rageArt: 'RAGE ART: 300 Units Free Voltage Tornado',
-      cryDf2: 'SAB MILE HUYE HAIN JI!',
-      cryLow: 'JHADU CHALEGA!',
-      cryThrow: 'DHARNA TIME JI!'
+      rageArt: 'RAGE ART: Toh Kar Na 300-Volt Tornado',
+      cryDf2: 'TOH KAR NA!!',
+      cryLow: 'PARESHAN HO GAYE HUM!',
+      cryThrow: 'KAR NA PHIR!!'
     },
     rahul: {
       jab1: 'Mohabbat Jab',
@@ -246,16 +294,16 @@ export function createMovelistForFighter(fighterId: FighterId): Record<string, M
       jab121: 'Bharat Jodo Corkscrew',
       jab124: 'Wayanad Hurricane Kick',
       heavy2: 'Aaloo-Sona Machine Hook',
-      df2: 'KHATAKHAT! Uppercut Launcher',
+      df2: 'MAZA AAYA! Uppercut Launcher',
       f2: 'Padyatra Sprint Haymaker',
       low3: 'Nyay Yatra Sliding Sweep',
-      hop4: 'Push-Up Challenge Jump Kick',
+      hop4: 'Khatam Tata Goodbye Jump Kick',
       throwName: 'Parliament Wink & Hug Suplex',
       powerCrush: 'White T-Shirt Zero-Degree Armor',
-      rageArt: 'RAGE ART: Khatakhat 8500 Megaton Barrage',
-      cryDf2: 'KHATAKHAT!!',
-      cryLow: 'DARO MAT!',
-      cryThrow: 'JAADU KI JHAPPI!'
+      rageArt: 'RAGE ART: Khatam Tata Goodbye Gaya Barrage',
+      cryDf2: 'MAZA AAYA!!',
+      cryLow: 'KHATAM! TATA!',
+      cryThrow: 'GOODBYE! GAYA!'
     }
   };
 

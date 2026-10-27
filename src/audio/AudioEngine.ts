@@ -6,9 +6,71 @@ export class AudioEngine {
   private isPlayingBgm = false;
   private step = 0;
   private settings: GameSettings;
+  private currentMemeAudio: HTMLAudioElement | null = null;
+  private lastMemeTime = 0;
+  private audioCache = new Map<string, HTMLAudioElement>();
 
   constructor(settings: GameSettings) {
     this.settings = settings;
+    this.preloadMemeClips();
+  }
+
+  private preloadMemeClips(): void {
+    const urls = [
+      '/sounds/modi_bhojyam.mp3',
+      '/sounds/modi_lavden_bhojyam.mp3',
+      '/sounds/modi_wah.mp3',
+      '/sounds/modi_kya_takleef.mp3',
+      '/sounds/modi_sab_changasi.mp3',
+      '/sounds/modi_bkl.mp3',
+      '/sounds/mamata_humba_rumba.mp3',
+      '/sounds/mamata_ei_bosun.mp3',
+      '/sounds/mamata_clip.mp3',
+      '/sounds/rahul_khatam_tata.mp3',
+      '/sounds/rahul_maza_aaya.mp3',
+      '/sounds/rahul_khatam_short.mp3',
+      '/sounds/kejriwal_toh_kar_na.mp3'
+    ];
+    for (const url of urls) {
+      const audio = new Audio(url);
+      audio.preload = 'auto';
+      this.audioCache.set(url, audio);
+    }
+  }
+
+  public playMemeClip(url: string, forceInterrupt = false): void {
+    if (!this.settings.announcerEnabled) return;
+    const vol = this.getEffectiveSfxGain();
+    if (vol <= 0 || !url) return;
+
+    const now = performance.now();
+    // Prevent rapid overlapping spam unless forced (e.g., Rage Art, KO, Launcher, Character Select)
+    if (!forceInterrupt && now - this.lastMemeTime < 1400) {
+      return;
+    }
+
+    if (this.currentMemeAudio) {
+      if (forceInterrupt) {
+        this.currentMemeAudio.pause();
+        this.currentMemeAudio.currentTime = 0;
+      } else if (!this.currentMemeAudio.paused && !this.currentMemeAudio.ended) {
+        return;
+      }
+    }
+
+    this.lastMemeTime = now;
+
+    // Clone or reuse cached audio element
+    let audio = this.audioCache.get(url);
+    if (!audio) {
+      audio = new Audio(url);
+      this.audioCache.set(url, audio);
+    }
+
+    audio.currentTime = 0;
+    audio.volume = Math.min(1, vol * 1.0);
+    this.currentMemeAudio = audio;
+    audio.play().catch(() => {});
   }
 
   public updateSettings(settings: GameSettings): void {

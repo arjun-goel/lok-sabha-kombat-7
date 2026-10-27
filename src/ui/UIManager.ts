@@ -130,6 +130,23 @@ export class UIManager {
       this.togglePauseMenu(true);
     });
 
+    // Meme Taunt Button & 'T' Keybind
+    const triggerTaunt = () => {
+      if (!this.game.p1) return;
+      const pool = this.game.p1.profile.memeClips.hitPool;
+      const clip = pool[Math.floor(Math.random() * pool.length)];
+      this.game.audio.playMemeClip(clip, true);
+      const phrases = this.game.p1.profile.catchphrases.hit;
+      const text = phrases[Math.floor(Math.random() * phrases.length)];
+      this.showCalloutBubble(1, text, '🔊 VIRAL MEME TAUNT!');
+    };
+    document.getElementById('btn-meme-taunt')?.addEventListener('click', triggerTaunt);
+    window.addEventListener('keydown', (e) => {
+      if (e.code === 'KeyT' && !this.game.isInMenu && !this.game.isPaused) {
+        triggerTaunt();
+      }
+    });
+
     // Practice Dummy Behavior Selector
     const dummySelect = document.getElementById('select-dummy-behavior') as HTMLSelectElement | null;
     dummySelect?.addEventListener('change', () => {
@@ -321,7 +338,7 @@ export class UIManager {
             this.selectedP2 = id;
           }
           this.game.spawnFighters(this.selectedP1, this.selectedP2);
-          this.game.audio.speakAnnouncer(prof.name, prof.voicePitch, prof.voiceRate);
+          this.game.audio.playMemeClip(prof.memeClips.select, true);
           this.renderRosterSelection();
         });
         container.appendChild(card);
