@@ -91,19 +91,26 @@ export class SceneManager {
 
     if (isMenuMode) {
       // Showcase cinematic orbit around the fighters on the main menu!
+      const aspect = window.innerWidth / Math.max(1, window.innerHeight);
+      const portraitPullback = aspect < 1.0 ? (1.0 - aspect) * 4.5 : 0;
       const orbitAngle = Math.sin(time * 0.35) * 0.32;
-      this.targetCameraPos.set(Math.sin(orbitAngle) * 5.4, 2.05, Math.cos(orbitAngle) * 5.2);
+      this.targetCameraPos.set(Math.sin(orbitAngle) * 5.4, 2.05, Math.cos(orbitAngle) * 5.2 + portraitPullback);
       this.targetLookAt.set(0, 1.32, 0);
     } else {
       const midX = (p1Pos.x + p2Pos.x) * 0.5;
       const midY = Math.max(1.25, (p1Pos.y + p2Pos.y) * 0.5 + 1.22);
       const dist = Math.abs(p1Pos.x - p2Pos.x);
 
+      // Automatically widen Z distance on narrow mobile/portrait screens so neither fighter goes off-screen
+      const aspect = window.innerWidth / Math.max(1, window.innerHeight);
+      const aspectMultiplier = aspect < 1.35 ? 1.35 / Math.max(0.48, aspect) : 1.0;
+
       this.zoomBoost = THREE.MathUtils.lerp(this.zoomBoost, 0, dt * 4.5);
-      const desiredZ = THREE.MathUtils.clamp(3.8 + dist * 0.62 - this.zoomBoost, 3.1, 7.6);
+      const baseZ = THREE.MathUtils.clamp(3.8 + dist * 0.62 - this.zoomBoost, 3.1, 7.6);
+      const desiredZ = THREE.MathUtils.clamp(baseZ * aspectMultiplier, 3.1, 13.5);
 
       this.targetCameraPos.set(midX, midY + 0.55, desiredZ);
-      this.targetLookAt.set(midX, midY, 0);
+      this.targetLookAt.set(midX, midY - (aspect < 1.0 ? 0.25 : 0), 0);
     }
 
     this.camera.position.lerp(this.targetCameraPos, Math.min(1, dt * 8.5));

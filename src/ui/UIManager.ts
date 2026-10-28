@@ -209,27 +209,154 @@ export class UIManager {
       this.showMainMenuScreen();
     });
 
-    // Virtual On-Screen Arcade Controls (for Mouse / Touch / Quick Click Testing)
+    // Virtual On-Screen Arcade Controls (for Mouse / Touch / Multi-Touch Testing)
     document.querySelectorAll<HTMLElement>('[data-vbtn]').forEach((btn) => {
       const code = btn.dataset.vbtn!;
-      const press = (e: Event) => {
+      const press = (e: PointerEvent) => {
         e.preventDefault();
+        try {
+          btn.setPointerCapture(e.pointerId);
+        } catch {
+          // Ignore pointer capture errors
+        }
+        if ('vibrate' in navigator) {
+          try { navigator.vibrate(12); } catch {}
+        }
         this.game.inputMgr.setVirtualButton(code, true);
         btn.classList.add('active-press');
       };
-      const release = (e: Event) => {
+      const release = (e: PointerEvent) => {
         e.preventDefault();
         this.game.inputMgr.setVirtualButton(code, false);
         btn.classList.remove('active-press');
       };
       btn.addEventListener('pointerdown', press);
       btn.addEventListener('pointerup', release);
-      btn.addEventListener('pointerleave', release);
       btn.addEventListener('pointercancel', release);
+      btn.addEventListener('lostpointercapture', release);
     });
+
+    // 1-Tap Mobile Special Combo Macros (df+2 Sky Launcher, d+3 Low Sweep)
+    document.querySelectorAll<HTMLElement>('[data-macro]').forEach((btn) => {
+      const macro = btn.dataset.macro as 'launcher_df2' | 'low_d3' | 'hopkick_uf4' | 'combo_121';
+      btn.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        if ('vibrate' in navigator) {
+          try { navigator.vibrate(22); } catch {}
+        }
+        this.game.inputMgr.triggerMobileMacro(macro);
+        btn.classList.add('active-press');
+        window.setTimeout(() => btn.classList.remove('active-press'), 160);
+      });
+    });
+
+    // Fullscreen Toggle Buttons (Main Menu & HUD)
+    const toggleFullscreen = () => {
+      this.game.audio.playUIClick(660);
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen?.().catch(() => {});
+        const scr = screen as unknown as { orientation?: { lock?: (mode: string) => Promise<void> } };
+        scr.orientation?.lock?.('landscape').catch(() => {});
+      } else {
+        document.exitFullscreen?.().catch(() => {});
+      }
+    };
+    document.getElementById('btn-fullscreen-toggle')?.addEventListener('click', toggleFullscreen);
+    document.getElementById('btn-hud-fullscreen')?.addEventListener('click', toggleFullscreen);
+
+    // Multi-Touch Virtual Analog Joystick (8-Way Directional Input)
+    this.setupTouchJoystick();
 
     // Settings Form Controls
     this.bindSettingsInputs();
+  }
+
+  private setupTouchJoystick(): void {
+    const zone = document.getElementById('touch-joystick-zone');
+    const knob = document.getElementById('touch-joystick-knob');
+    if (!zone || !knob) return;
+
+    let activePointerId: number | null = null;
+    const maxRadius = 38;
+
+    const updateDirectionsFromOffset = (dx: number, dy: number) => {
+      const dist = Math.hypot(dx, dy);
+      const deadzone = 10;
+
+      if (dist < deadzone) {
+        this.game.inputMgr.clearAllVirtualDirections();
+        return;
+      }
+
+      const angle = Math.atan2(dy, dx); // -PI to PI (0 = right, PI/2 = down, -PI/2 = up)
+      const deg = (angle * 180) / Math.PI;
+
+      const right = deg > -67.5 && deg < 67.5;
+      const left = deg > 112.5 || deg < -112.5;
+      const down = deg > 22.5 && deg < 157.5;
+      const up = deg < -22.5 && deg > -157.5;
+
+      this.game.inputMgr.setVirtualButton('right', right);
+      this.game.inputMgr.setVirtualButton('left', left);
+      this.game.inputMgr.setVirtualButton('down', down);
+      this.game.inputMgr.setVirtualButton('up', up);
+    };
+
+    const handleMove = (clientX: number, clientY: number) => {
+      const rect = zone.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+
+      let dx = clientX - centerX;
+      let dy = clientY - centerY;
+      const dist = Math.hypot(dx, dy);
+
+      if (dist > maxRadius) {
+        dx = (dx / dist) * maxRadius;
+        dy = (dy / dist) * maxRadius;
+      }
+
+      knob.style.transform = `translate(${dx}px, ${dy}px)`;
+      updateDirectionsFromOffset(dx, dy);
+    };
+
+    const resetJoystick = () => {
+      activePointerId = null;
+      knob.style.transform = 'translate(0px, 0px)';
+      zone.classList.remove('active');
+      this.game.inputMgr.clearAllVirtualDirections();
+    };
+
+    zone.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      activePointerId = e.pointerId;
+      try {
+        zone.setPointerCapture(e.pointerId);
+      } catch {}
+      zone.classList.add('active');
+      handleMove(e.clientX, e.clientY);
+    });
+
+    zone.addEventListener('pointermove', (e) => {
+      if (e.pointerId !== activePointerId) return;
+      e.preventDefault();
+      handleMove(e.clientX, e.clientY);
+    });
+
+    zone.addEventListener('pointerup', (e) => {
+      if (e.pointerId !== activePointerId) return;
+      e.preventDefault();
+      resetJoystick();
+    });
+
+    zone.addEventListener('pointercancel', (e) => {
+      if (e.pointerId !== activePointerId) return;
+      resetJoystick();
+    });
+
+    zone.addEventListener('lostpointercapture', () => {
+      resetJoystick();
+    });
   }
 
   private bindSettingsInputs(): void {

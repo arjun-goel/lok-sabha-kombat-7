@@ -2,7 +2,14 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#070b14" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="mobile-web-app-capable" content="yes" />
     <title>LOK SABHA KOMBAT 7: Khela Hobe Edition (3D Tekken Brawler)</title>
     <link rel="stylesheet" href="/src/styles.css" />
   </head>
@@ -64,6 +71,9 @@
               </button>
               <button type="button" class="menu-btn" style="flex: 1" data-open-settings>
                 <span>⚙️ SETTINGS</span>
+              </button>
+              <button id="btn-fullscreen-toggle" type="button" class="menu-btn" title="Fullscreen Mode">
+                <span>⛶ FULL</span>
               </button>
             </div>
           </div>
@@ -138,9 +148,10 @@
           </div>
           <div id="hud-timer" class="timer-box">60</div>
           <div class="hud-top-actions">
-            <button id="btn-hud-pause" type="button" class="btn-hud-mini">⏸ PAUSE (ESC)</button>
+            <button id="btn-hud-pause" type="button" class="btn-hud-mini">⏸ PAUSE</button>
             <button type="button" class="btn-hud-mini" data-open-movelist>📜 MOVES</button>
             <button type="button" class="btn-hud-mini" data-open-settings>⚙️</button>
+            <button id="btn-hud-fullscreen" type="button" class="btn-hud-mini" title="Fullscreen">⛶</button>
           </div>
         </div>
 
@@ -193,22 +204,56 @@
         </div>
 
         <div class="arcade-deck-bar">
-          <div class="vpad-group">
-            <button type="button" class="vbtn" data-vbtn="left">◀ BACK / GUARD (A)</button>
-            <button type="button" class="vbtn" data-vbtn="down">▼ CROUCH (S)</button>
-            <button type="button" class="vbtn" data-vbtn="up">▲ JUMP (W)</button>
-            <button type="button" class="vbtn" data-vbtn="right">▶ FORWARD (D)</button>
-            <button type="button" class="vbtn" data-vbtn="ssUp">⤴ SIDESTEP (Q)</button>
+          <!-- LEFT THUMB: ANALOG JOYSTICK + D-PAD & SIDESTEP -->
+          <div class="mobile-left-cluster">
+            <div id="touch-joystick-zone" class="touch-joystick-zone" aria-label="Virtual Movement Joystick">
+              <div class="joystick-ring">
+                <span class="joy-dir joy-u">▲</span>
+                <span class="joy-dir joy-d">▼</span>
+                <span class="joy-dir joy-l">◀</span>
+                <span class="joy-dir joy-r">▶</span>
+                <div id="touch-joystick-knob" class="joystick-knob"></div>
+              </div>
+            </div>
+
+            <div class="left-aux-buttons">
+              <button type="button" class="vbtn vbtn-guard" data-vbtn="block">🛡️ GUARD</button>
+              <button type="button" class="vbtn" data-vbtn="ssUp">⤴ SIDESTEP</button>
+              <button id="btn-meme-taunt" type="button" class="vbtn vbtn-meme">🔊 MEME (T)</button>
+            </div>
           </div>
 
-          <div class="vpad-group">
-            <button type="button" class="vbtn" data-vbtn="lp">👊 1: JAB (U)</button>
-            <button type="button" class="vbtn" data-vbtn="rp">💥 2: HEAVY (I)</button>
-            <button type="button" class="vbtn" data-vbtn="lk">🦵 3: KICK (O)</button>
-            <button type="button" class="vbtn" data-vbtn="rk">🌀 4: ROUNDHOUSE (P)</button>
-            <button type="button" class="vbtn vbtn-special" data-vbtn="grab">🤝 THROW (G)</button>
-            <button type="button" class="vbtn vbtn-rage" data-vbtn="rage">🔥 ARMOR / RAGE ART (H)</button>
-            <button id="btn-meme-taunt" type="button" class="vbtn" style="background: #7c3aed; border-color: #c4b5fd">🔊 MEME TAUNT (T)</button>
+          <!--DESKTOP KEYBOARD HINT STRIP (Hidden on compact mobile screens) -->
+          <div class="desktop-dpad-strip vpad-group">
+            <button type="button" class="vbtn" data-vbtn="left">◀ BACK (A)</button>
+            <button type="button" class="vbtn" data-vbtn="down">▼ CROUCH (S)</button>
+            <button type="button" class="vbtn" data-vbtn="up">▲ JUMP (W)</button>
+            <button type="button" class="vbtn" data-vbtn="right">▶ FWD (D)</button>
+          </div>
+
+          <!-- RIGHT THUMB: 4-LIMB DIAMOND + 1-TAP SPECIAL MACROS -->
+          <div class="mobile-right-cluster">
+            <div class="special-macro-col">
+              <button type="button" class="vbtn vbtn-macro" data-macro="launcher_df2">⚡ SKY LAUNCHER</button>
+              <button type="button" class="vbtn vbtn-macro" data-macro="low_d3">🧹 LOW SWEEP</button>
+              <button type="button" class="vbtn vbtn-special" data-vbtn="grab">🤝 THROW (G)</button>
+              <button type="button" class="vbtn vbtn-rage" data-vbtn="rage">🔥 RAGE ART (H)</button>
+            </div>
+
+            <div class="limb-diamond-grid">
+              <button type="button" class="vbtn limb-btn limb-lp" data-vbtn="lp">
+                <strong>1</strong><span>JAB (U)</span>
+              </button>
+              <button type="button" class="vbtn limb-btn limb-rp" data-vbtn="rp">
+                <strong>2</strong><span>HEAVY (I)</span>
+              </button>
+              <button type="button" class="vbtn limb-btn limb-lk" data-vbtn="lk">
+                <strong>3</strong><span>KICK (O)</span>
+              </button>
+              <button type="button" class="vbtn limb-btn limb-rk" data-vbtn="rk">
+                <strong>4</strong><span>ROUND (P)</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
