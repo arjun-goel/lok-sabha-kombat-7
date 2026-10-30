@@ -1,6 +1,6 @@
 export type HitLevel = 'HIGH' | 'MID' | 'LOW' | 'UNBLOCKABLE' | 'THROW';
 
-export type FighterId = 'modi' | 'mamata' | 'rahul' | 'kejriwal';
+export type FighterId = 'modi' | 'mamata' | 'yogi' | 'rahul' | 'kejriwal';
 export type StageId = 'sansad' | 'howrah' | 'primetime';
 export type GameMode = 'arcade' | 'versus_cpu' | 'versus_pvp' | 'practice';
 export type AIDifficulty = 'easy' | 'medium' | 'hard' | 'tekken_god';
@@ -48,7 +48,7 @@ export interface FighterProfile {
   title: string;
   fightingStyle: string;
   origin: string;
-  signatureProp: 'lotus_mic' | 'hawai_chappal' | 'muffler_broom' | 'padyatra_torch';
+  signatureProp: 'lotus_mic' | 'hawai_chappal' | 'muffler_broom' | 'padyatra_torch' | 'bulldozer_blade';
   catchphrases: {
     intro: string;
     win: string;

@@ -96,7 +96,7 @@ export class GameManager {
     this.currentRound = 1;
 
     if (mode === 'arcade') {
-      const allIds: FighterId[] = ['modi', 'mamata', 'kejriwal', 'rahul'];
+      const allIds: FighterId[] = ['modi', 'mamata', 'yogi', 'kejriwal', 'rahul'];
       this.arcadeOpponents = allIds.filter((id) => id !== p1Id);
       // Put Mamata or Modi as Final Boss!
       this.arcadeOpponents.sort((a, b) => (a === 'mamata' || a === 'modi' ? 1 : b === 'mamata' || b === 'modi' ? -1 : 0));

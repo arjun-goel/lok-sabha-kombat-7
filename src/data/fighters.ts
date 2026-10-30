@@ -91,6 +91,50 @@ export const FIGHTER_PROFILES: Record<FighterId, FighterProfile> = {
     voicePitch: 1.32,
     voiceRate: 1.12
   },
+  yogi: {
+    id: 'yogi',
+    name: 'YOGI BABA',
+    shortName: 'YOGI BABA',
+    title: 'Bulldozer Baba Supreme',
+    fightingStyle: 'Gorakhnath Kung-Fu & JCB Bulldozer-Jutsu',
+    origin: 'Gorakhpur — Lucknow Expressway',
+    signatureProp: 'bulldozer_blade',
+    catchphrases: {
+      intro: 'Mitti Mein Mila Denge! Bulldozer Taiyaar Hai!',
+      win: 'Rom Rom Bhaiyo — System Aur Mafia Dono Saaf!',
+      rage: 'MITTI MEIN MILA DENGE!! JCB BULLDOZER SMASH!!',
+      hit: ['MITTI MEIN MILA DENGE!', 'BULLDOZER SHOT!', 'THOK DENGE!', 'SYSTEM FAAD DENGE!', 'BABA KA BULLDOZER!']
+    },
+    memeClips: {
+      select: '/sounds/yogi_meme.mp3',
+      intro: '/sounds/yogi_meme.mp3',
+      special: '/sounds/yogi_bulldozer.mp3',
+      rage: '/sounds/yogi_system.mp3',
+      win: '/sounds/yogi_system.mp3',
+      hitPool: [
+        '/sounds/yogi_meme.mp3',
+        '/sounds/yogi_bulldozer.mp3',
+        '/sounds/yogi_system.mp3'
+      ]
+    },
+    stats: { power: 10, speed: 9, range: 9, drama: 10 },
+    colors: {
+      primary: 0xf97316,     // Iconic Bhagwa / Deep Saffron Monastic Chola Robe
+      secondary: 0xea580c,   // Rich Saffron Angavastram Shawl
+      accent: 0xfacc15,      // JCB Bulldozer Yellow Sparks
+      glow: 0xff5500,
+      skin: 0xdba379,
+      hair: 0xdba379,        // Clean-shaven Monk Head
+      uiHex: '#ff5500',
+      uiSecondaryHex: '#facc15'
+    },
+    scale: { height: 0.98, bulk: 1.08 },
+    damageMultiplier: 1.12,
+    speedMultiplier: 1.04,
+    description: 'Clad in full Bhagwa robes with Rudraksha mala, golden Kundal earrings, and the unstoppable JCB Bulldozer Gauntlet!',
+    voicePitch: 0.9,
+    voiceRate: 1.05
+  },
   kejriwal: {
     id: 'kejriwal',
     name: 'ARVIND KEJRIWAL',
@@ -270,6 +314,23 @@ export function createMovelistForFighter(fighterId: FighterId): Record<string, M
       cryDf2: 'HUMBA HUMBA RUMBA RUMBA!!',
       cryLow: 'KAMBA KAMBA!',
       cryThrow: 'EI BOSUN TOH!'
+    },
+    yogi: {
+      jab1: 'Gorakhpur Fast Jab',
+      jab12: 'Bhagwa Twin Strike',
+      jab121: 'Rudraksha Spinning Backfist',
+      jab124: 'Expressway High Roundhouse',
+      heavy2: 'JCB Hydraulic Hook',
+      df2: 'MITTI MEIN MILA DENGE! Bulldozer Uppercut',
+      f2: 'JCB Heavy Bucket Lunge',
+      low3: 'Encroachment Demolition Sweep',
+      hop4: 'Garud Flying Kick Launcher',
+      throwName: 'VIP Helicopter Air-Drop Slam',
+      powerCrush: 'Bulldozer Steel Blade Armor Charge',
+      rageArt: 'RAGE ART: Mitti Mein Mila Denge JCB Obliteration',
+      cryDf2: 'MITTI MEIN MILA DENGE!!',
+      cryLow: 'BULLDOZER CHALEGA!',
+      cryThrow: 'SYSTEM FAAD DENGE!'
     },
     kejriwal: {
       jab1: 'RTI Notice Jab',

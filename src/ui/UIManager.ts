@@ -434,19 +434,32 @@ export class UIManager {
     const p2Container = document.getElementById('roster-p2-cards');
     if (!p1Container || !p2Container) return;
 
-    const fighterIds: FighterId[] = ['modi', 'mamata', 'kejriwal', 'rahul'];
+    const fighterIds: FighterId[] = ['modi', 'mamata', 'yogi', 'kejriwal', 'rahul'];
 
     const buildCards = (playerNum: 1 | 2, container: HTMLElement) => {
       container.innerHTML = '';
       fighterIds.forEach((id) => {
         const prof = FIGHTER_PROFILES[id];
         const isSelected = (playerNum === 1 ? this.selectedP1 : this.selectedP2) === id;
+        const avatarIcon =
+          id === 'modi'
+            ? '🪷🧔‍♂️'
+            : id === 'mamata'
+            ? '🩴👵'
+            : id === 'yogi'
+            ? '🚜🧑‍🦲'
+            : id === 'kejriwal'
+            ? '🧹🧣'
+            : '✋🧔';
         const card = document.createElement('button');
         card.type = 'button';
         card.className = `fighter-card ${isSelected ? 'selected' : ''}`;
         card.style.setProperty('--fighter-accent', prof.colors.uiHex);
         card.innerHTML = `
-          <div class="fighter-card-badge" style="background:${prof.colors.uiHex}">${prof.shortName}</div>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div class="fighter-card-badge" style="background:${prof.colors.uiHex}">${prof.shortName}</div>
+            <span style="font-size:1.15rem">${avatarIcon}</span>
+          </div>
           <div class="fighter-card-name">${prof.name}</div>
           <div class="fighter-card-title">${prof.title}</div>
           <div class="fighter-card-style">${prof.fightingStyle}</div>
@@ -505,7 +518,7 @@ export class UIManager {
     const listContainer = document.getElementById('movelist-table-body');
     if (!tabsContainer || !listContainer) return;
 
-    const fighterIds: FighterId[] = ['modi', 'mamata', 'kejriwal', 'rahul'];
+    const fighterIds: FighterId[] = ['modi', 'mamata', 'yogi', 'kejriwal', 'rahul'];
     tabsContainer.innerHTML = '';
     fighterIds.forEach((id) => {
       const prof = FIGHTER_PROFILES[id];

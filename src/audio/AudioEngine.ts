@@ -29,7 +29,10 @@ export class AudioEngine {
       '/sounds/rahul_khatam_tata.mp3',
       '/sounds/rahul_maza_aaya.mp3',
       '/sounds/rahul_khatam_short.mp3',
-      '/sounds/kejriwal_toh_kar_na.mp3'
+      '/sounds/kejriwal_toh_kar_na.mp3',
+      '/sounds/yogi_meme.mp3',
+      '/sounds/yogi_bulldozer.mp3',
+      '/sounds/yogi_system.mp3'
     ];
     for (const url of urls) {
       const audio = new Audio(url);
