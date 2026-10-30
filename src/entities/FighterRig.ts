@@ -25,6 +25,436 @@ export interface RigJoints {
   nameplateSprite: THREE.Sprite;
 }
 
+const portraitUrlCache = new Map<string, string>();
+
+/**
+ * Generates a high-detail 512x512 recognizable facial likeness canvas for each political leader.
+ * Used both as a 3D UV-mapped curved face texture on the 3D head mesh AND as a portrait avatar!
+ */
+export function createDetailedFaceCanvas(profile: FighterProfile, isAvatarBadge = false): HTMLCanvasElement {
+  const canvas = document.createElement('canvas');
+  canvas.width = 512;
+  canvas.height = 512;
+  const ctx = canvas.getContext('2d')!;
+
+  const id = profile.id;
+
+  // Base skin tone hex
+  const skinHex = `#${profile.colors.skin.toString(16).padStart(6, '0')}`;
+  if (isAvatarBadge) {
+    // Rich radial backdrop for UI portrait badge
+    const bgGrad = ctx.createRadialGradient(256, 256, 40, 256, 256, 256);
+    bgGrad.addColorStop(0, profile.colors.uiHex);
+    bgGrad.addColorStop(1, '#090d16');
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(0, 0, 512, 512);
+
+    // Sculpted head silhouette oval for 2D badge
+    ctx.fillStyle = skinHex;
+    ctx.beginPath();
+    ctx.ellipse(256, 272, 165, 198, 0, 0, Math.PI * 2);
+    ctx.fill();
+  } else {
+    // Seamless 3D skin base with warm anatomical cheek & temple shading
+    ctx.fillStyle = skinHex;
+    ctx.fillRect(0, 0, 512, 512);
+  }
+
+  // Subtle anatomical shading (forehead highlight, cheek warmth, jawline contour)
+  const cheekGradL = ctx.createRadialGradient(155, 290, 10, 155, 290, 85);
+  cheekGradL.addColorStop(0, 'rgba(185, 95, 65, 0.24)');
+  cheekGradL.addColorStop(1, 'rgba(185, 95, 65, 0)');
+  ctx.fillStyle = cheekGradL;
+  ctx.fillRect(0, 0, 512, 512);
+
+  const cheekGradR = ctx.createRadialGradient(357, 290, 10, 357, 290, 85);
+  cheekGradR.addColorStop(0, 'rgba(185, 95, 65, 0.24)');
+  cheekGradR.addColorStop(1, 'rgba(185, 95, 65, 0)');
+  ctx.fillStyle = cheekGradR;
+  ctx.fillRect(0, 0, 512, 512);
+
+  // Forehead expression creases
+  ctx.strokeStyle = 'rgba(110, 62, 38, 0.35)';
+  ctx.lineWidth = 3.5;
+  ctx.lineCap = 'round';
+  if (id === 'modi' || id === 'kejriwal' || id === 'yogi') {
+    ctx.beginPath();
+    ctx.moveTo(175, 132);
+    ctx.quadraticCurveTo(256, 124, 337, 132);
+    ctx.moveTo(190, 148);
+    ctx.quadraticCurveTo(256, 141, 322, 148);
+    ctx.stroke();
+  }
+
+  // Glabella (between-eyebrows intense furrow lines for fighting determination)
+  ctx.beginPath();
+  ctx.moveTo(244, 166);
+  ctx.lineTo(247, 195);
+  ctx.moveTo(268, 166);
+  ctx.lineTo(265, 195);
+  ctx.stroke();
+
+  // ================= CHARACTER-SPECIFIC FOREHEAD / HAIRLINE IDENTIFIERS =================
+  if (id === 'yogi') {
+    // YOGI BABA: Iconic Yellow Sandalwood (Chandan) Tripundra / U-Tilak + Bright Vermilion (Kumkum) Bindu & Streak!
+    ctx.save();
+    ctx.strokeStyle = '#fde047';
+    ctx.lineWidth = 10;
+    ctx.beginPath();
+    ctx.arc(256, 135, 34, 0.15 * Math.PI, 0.85 * Math.PI);
+    ctx.stroke();
+
+    // Vertical Chandan U-fork
+    ctx.lineWidth = 7;
+    ctx.beginPath();
+    ctx.moveTo(238, 102);
+    ctx.quadraticCurveTo(256, 162, 274, 102);
+    ctx.stroke();
+
+    // Central Vermilion Red Kumkum Streak & Bindu
+    ctx.fillStyle = '#dc2626';
+    ctx.beginPath();
+    ctx.arc(256, 142, 13, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = '#dc2626';
+    ctx.lineWidth = 7;
+    ctx.beginPath();
+    ctx.moveTo(256, 106);
+    ctx.lineTo(256, 162);
+    ctx.stroke();
+    ctx.restore();
+  } else if (id === 'mamata') {
+    // MAMATA DIDI: Iconic Bright Red Round Bindi on Forehead + Parted Black Hairline
+    ctx.fillStyle = '#e11d48';
+    ctx.beginPath();
+    ctx.arc(256, 156, 14, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Center-parted dark hair framing forehead
+    ctx.fillStyle = '#18181b';
+    ctx.beginPath();
+    ctx.moveTo(60, 160);
+    ctx.quadraticCurveTo(160, 65, 256, 96);
+    ctx.quadraticCurveTo(352, 65, 452, 160);
+    ctx.lineTo(452, 40);
+    ctx.lineTo(60, 40);
+    ctx.closePath();
+    ctx.fill();
+  } else if (id === 'modi') {
+    // MODI JI: Swept Silver-White Hairline at top
+    ctx.fillStyle = '#f1f5f9';
+    ctx.beginPath();
+    ctx.moveTo(70, 125);
+    ctx.quadraticCurveTo(256, 65, 442, 125);
+    ctx.lineTo(442, 30);
+    ctx.lineTo(70, 30);
+    ctx.closePath();
+    ctx.fill();
+  } else if (id === 'kejriwal') {
+    // KEJRIWAL: White Gandhi Topi Brim across top of forehead with "मैं आम आदमी"
+    if (isAvatarBadge) {
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.moveTo(85, 135);
+      ctx.quadraticCurveTo(256, 48, 427, 135);
+      ctx.closePath();
+      ctx.fill();
+      ctx.strokeStyle = '#0f172a';
+      ctx.lineWidth = 4;
+      ctx.stroke();
+      ctx.fillStyle = '#0f172a';
+      ctx.font = '900 22px "Segoe UI", Arial, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('मैं आम आदमी', 256, 112);
+    }
+  } else if (id === 'rahul') {
+    // RAHUL GANDHI: Wavy Dark Salt-and-Pepper Hairline
+    ctx.fillStyle = '#27272a';
+    ctx.beginPath();
+    ctx.moveTo(65, 145);
+    ctx.quadraticCurveTo(175, 72, 256, 102);
+    ctx.quadraticCurveTo(340, 72, 447, 145);
+    ctx.lineTo(447, 30);
+    ctx.lineTo(65, 30);
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  // ================= REALISTIC EXPRESSIVE EYES & EYEBROWS =================
+  const drawEyeAndBrow = (cx: number, cy: number, isLeft: boolean) => {
+    const sign = isLeft ? -1 : 1;
+
+    // Eye socket shadow
+    const sockGrad = ctx.createRadialGradient(cx, cy, 8, cx, cy, 44);
+    sockGrad.addColorStop(0, 'rgba(92, 48, 28, 0.34)');
+    sockGrad.addColorStop(1, 'rgba(92, 48, 28, 0)');
+    ctx.fillStyle = sockGrad;
+    ctx.beginPath();
+    ctx.arc(cx, cy, 44, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Almond Sclera (White of Eye)
+    ctx.fillStyle = '#f8fafc';
+    ctx.beginPath();
+    ctx.moveTo(cx - 32, cy + 2);
+    ctx.quadraticCurveTo(cx, cy - 23, cx + 32, cy + 2);
+    ctx.quadraticCurveTo(cx, cy + 21, cx - 32, cy + 2);
+    ctx.closePath();
+    ctx.fill();
+
+    // Iris (Deep Warm Brown)
+    ctx.fillStyle = '#3b1d0e';
+    ctx.beginPath();
+    ctx.arc(cx, cy + 1, 14.5, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Black Pupil
+    ctx.fillStyle = '#090d16';
+    ctx.beginPath();
+    ctx.arc(cx, cy + 1, 7.5, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Specular Eye Catchlight (Brings the face to life!)
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath();
+    ctx.arc(cx - 4.5, cy - 4, 3.8, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(cx + 4, cy + 4, 1.8, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Upper Eyelid Fold & Lash Line
+    ctx.strokeStyle = '#1e1b18';
+    ctx.lineWidth = 4.5;
+    ctx.beginPath();
+    ctx.moveTo(cx - 34, cy + 3);
+    ctx.quadraticCurveTo(cx, cy - 24, cx + 34, cy + 3);
+    ctx.stroke();
+
+    // Lower Eyelid Crease / Under-eye bag
+    ctx.strokeStyle = 'rgba(105, 55, 35, 0.45)';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(cx - 26, cy + 18);
+    ctx.quadraticCurveTo(cx, cy + 28, cx + 26, cy + 16);
+    ctx.stroke();
+
+    // Character-Specific Eyebrows
+    ctx.save();
+    ctx.strokeStyle = id === 'modi' ? '#e2e8f0' : '#18181b';
+    ctx.lineWidth = id === 'mamata' ? 7.5 : 11.5;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    if (id === 'mamata') {
+      // High arched expressive eyebrows
+      ctx.moveTo(cx - sign * 34, cy - 24);
+      ctx.quadraticCurveTo(cx, cy - 42, cx + sign * 34, cy - 28);
+    } else if (id === 'yogi') {
+      // Intense authoritative angled brows
+      ctx.moveTo(cx - sign * 18, cy - 22);
+      ctx.quadraticCurveTo(cx, cy - 35, cx + sign * 38, cy - 28);
+    } else {
+      // Thick distinct brows
+      ctx.moveTo(cx - sign * 28, cy - 23);
+      ctx.quadraticCurveTo(cx, cy - 36, cx + sign * 36, cy - 25);
+    }
+    ctx.stroke();
+    ctx.restore();
+  };
+
+  drawEyeAndBrow(182, 212, true);
+  drawEyeAndBrow(330, 212, false);
+
+  // Spectacles drawn cleanly on portrait for Modi, Mamata, Kejriwal
+  if (id === 'modi' || id === 'mamata' || id === 'kejriwal') {
+    ctx.save();
+    ctx.strokeStyle = id === 'modi' ? '#d4af37' : '#1e293b';
+    ctx.lineWidth = id === 'kejriwal' ? 6.5 : 4.2;
+    ctx.fillStyle = 'rgba(186, 230, 253, 0.14)';
+    // Left lens
+    ctx.beginPath();
+    ctx.roundRect(134, 184, 96, 56, 12);
+    ctx.fill();
+    ctx.stroke();
+    // Right lens
+    ctx.beginPath();
+    ctx.roundRect(282, 184, 96, 56, 12);
+    ctx.fill();
+    ctx.stroke();
+    // Bridge
+    ctx.beginPath();
+    ctx.moveTo(230, 206);
+    ctx.lineTo(282, 206);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  // ================= SCULPTED NOSE SHADING & NOSTRILS =================
+  ctx.strokeStyle = 'rgba(105, 55, 32, 0.55)';
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.moveTo(242, 208);
+  ctx.quadraticCurveTo(232, 265, 224, 288);
+  ctx.quadraticCurveTo(256, 304, 288, 288);
+  ctx.quadraticCurveTo(280, 265, 270, 208);
+  ctx.stroke();
+
+  // Nostrils
+  ctx.fillStyle = 'rgba(68, 32, 18, 0.65)';
+  ctx.beginPath();
+  ctx.ellipse(238, 291, 7, 4, -0.3, 0, Math.PI * 2);
+  ctx.ellipse(274, 291, 7, 4, 0.3, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Nasolabial Folds (Smile / Expression Lines)
+  ctx.strokeStyle = 'rgba(100, 52, 30, 0.5)';
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.moveTo(214, 282);
+  ctx.quadraticCurveTo(182, 322, 192, 362);
+  ctx.moveTo(298, 282);
+  ctx.quadraticCurveTo(330, 322, 320, 362);
+  ctx.stroke();
+
+  // ================= CHARACTER-SPECIFIC FACIAL HAIR, DIMPLES & MOUTH =================
+  if (id === 'modi') {
+    // NARENDRA MODI: Iconic Full Snowy-White Beard & Mustache with Silver Strands!
+    ctx.fillStyle = '#f1f5f9';
+    ctx.beginPath();
+    ctx.moveTo(95, 260);
+    ctx.quadraticCurveTo(135, 320, 175, 315);
+    ctx.quadraticCurveTo(256, 295, 337, 315);
+    ctx.quadraticCurveTo(377, 320, 417, 260);
+    ctx.quadraticCurveTo(432, 415, 256, 495);
+    ctx.quadraticCurveTo(80, 415, 95, 260);
+    ctx.closePath();
+    ctx.fill();
+
+    // Full White Mustache
+    ctx.fillStyle = '#e2e8f0';
+    ctx.beginPath();
+    ctx.moveTo(175, 332);
+    ctx.quadraticCurveTo(256, 292, 337, 332);
+    ctx.quadraticCurveTo(256, 355, 175, 332);
+    ctx.closePath();
+    ctx.fill();
+
+    // Beard Hair Strand Texture Lines
+    ctx.strokeStyle = '#cbd5e1';
+    ctx.lineWidth = 2.5;
+    for (let x = 135; x <= 375; x += 14) {
+      ctx.beginPath();
+      ctx.moveTo(x, 335);
+      ctx.quadraticCurveTo(256 + (x - 256) * 0.65, 415, 256 + (x - 256) * 0.35, 480);
+      ctx.stroke();
+    }
+
+    // Expressive Mouth visible beneath mustache
+    ctx.fillStyle = '#7f1d1d';
+    ctx.beginPath();
+    ctx.roundRect(222, 344, 68, 16, 8);
+    ctx.fill();
+  } else if (id === 'kejriwal') {
+    // ARVIND KEJRIWAL: Prominent Thick Black Mustache + Expressive Mouth + Maroon Muffler Chin Wrap
+    ctx.fillStyle = '#18181b';
+    ctx.beginPath();
+    ctx.moveTo(178, 336);
+    ctx.quadraticCurveTo(218, 304, 256, 316);
+    ctx.quadraticCurveTo(294, 304, 334, 336);
+    ctx.quadraticCurveTo(295, 348, 256, 336);
+    ctx.quadraticCurveTo(217, 348, 178, 336);
+    ctx.closePath();
+    ctx.fill();
+
+    // Mouth below mustache
+    ctx.fillStyle = '#881337';
+    ctx.beginPath();
+    ctx.moveTo(212, 352);
+    ctx.quadraticCurveTo(256, 368, 300, 352);
+    ctx.quadraticCurveTo(256, 382, 212, 352);
+    ctx.fill();
+
+    // Maroon Muffler framing jaw
+    ctx.fillStyle = '#7f1d1d';
+    ctx.fillRect(70, 425, 372, 85);
+  } else if (id === 'rahul') {
+    // RAHUL GANDHI: Signature Cheek Dimples + Salt-and-Pepper Bharat Jodo Beard & Mustache!
+    // Cheek Dimples
+    ctx.strokeStyle = 'rgba(95, 48, 28, 0.68)';
+    ctx.lineWidth = 4.5;
+    ctx.beginPath();
+    ctx.arc(166, 330, 14, -0.35 * Math.PI, 0.35 * Math.PI);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(346, 330, 14, 0.65 * Math.PI, 1.35 * Math.PI);
+    ctx.stroke();
+
+    // Salt-and-Pepper Full Beard
+    ctx.fillStyle = '#27272a';
+    ctx.beginPath();
+    ctx.moveTo(108, 275);
+    ctx.quadraticCurveTo(150, 332, 188, 324);
+    ctx.quadraticCurveTo(256, 305, 324, 324);
+    ctx.quadraticCurveTo(362, 332, 404, 275);
+    ctx.quadraticCurveTo(412, 415, 256, 478);
+    ctx.quadraticCurveTo(100, 415, 108, 275);
+    ctx.closePath();
+    ctx.fill();
+
+    // Silver-Grey Salt-and-Pepper Beard Streaks
+    ctx.strokeStyle = '#9ca3af';
+    ctx.lineWidth = 2.5;
+    for (let x = 145; x <= 365; x += 16) {
+      ctx.beginPath();
+      ctx.moveTo(x, 342);
+      ctx.lineTo(256 + (x - 256) * 0.55, 455);
+      ctx.stroke();
+    }
+
+    // Warm smile
+    ctx.fillStyle = '#991b1b';
+    ctx.beginPath();
+    ctx.roundRect(222, 345, 68, 16, 8);
+    ctx.fill();
+  } else if (id === 'yogi') {
+    // YOGI BABA: Clean-Shaven Monk Jawline with Authoritative Expression
+    ctx.strokeStyle = '#7f1d1d';
+    ctx.lineWidth = 6.5;
+    ctx.beginPath();
+    ctx.moveTo(210, 352);
+    ctx.quadraticCurveTo(256, 366, 302, 352);
+    ctx.stroke();
+
+    // Lower lip shadow
+    ctx.strokeStyle = 'rgba(100, 52, 30, 0.55)';
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(232, 372);
+    ctx.quadraticCurveTo(256, 382, 280, 372);
+    ctx.stroke();
+  } else if (id === 'mamata') {
+    // MAMATA BANERJEE: Expressive Determined Lips
+    ctx.fillStyle = '#be123c';
+    ctx.beginPath();
+    ctx.moveTo(208, 352);
+    ctx.quadraticCurveTo(256, 338, 304, 352);
+    ctx.quadraticCurveTo(256, 374, 208, 352);
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  return canvas;
+}
+
+export function getFighterPortraitDataURL(profile: FighterProfile): string {
+  const cached = portraitUrlCache.get(profile.id);
+  if (cached) return cached;
+  const canvas = createDetailedFaceCanvas(profile, true);
+  const url = canvas.toDataURL('image/png');
+  portraitUrlCache.set(profile.id, url);
+  return url;
+}
+
 export class FighterRig {
   public group: THREE.Group;
   public joints: RigJoints;
@@ -67,9 +497,8 @@ export class FighterRig {
     canvas.height = 128;
     const ctx = canvas.getContext('2d')!;
 
-    // Rounded dark pill background with glowing border
     const p = this.profile;
-    ctx.fillStyle = 'rgba(7, 11, 20, 0.86)';
+    ctx.fillStyle = 'rgba(7, 11, 20, 0.88)';
     ctx.strokeStyle = p.colors.uiHex;
     ctx.lineWidth = 8;
 
@@ -92,7 +521,6 @@ export class FighterRig {
     ctx.fill();
     ctx.stroke();
 
-    // Character Icon + Short Name
     const icon =
       p.id === 'modi'
         ? '🪷 '
@@ -121,7 +549,7 @@ export class FighterRig {
     });
     const sprite = new THREE.Sprite(mat);
     sprite.scale.set(1.18, 0.3, 1);
-    sprite.position.set(0, 2.32, 0);
+    sprite.position.set(0, 2.34, 0);
     return sprite;
   }
 
@@ -130,7 +558,7 @@ export class FighterRig {
     const bulk = p.scale.bulk;
     const heightScale = p.scale.height;
 
-    const skinMat = this.createMat(p.colors.skin, 0.48, 0.04);
+    const skinMat = this.createMat(p.colors.skin, 0.46, 0.04);
     const primaryMat = this.createMat(p.colors.primary, 0.48, 0.1);
     const secondaryMat = this.createMat(p.colors.secondary, 0.35, 0.22);
     const accentMat = this.createMat(p.colors.accent, 0.25, 0.5, p.colors.glow, 0.38);
@@ -141,7 +569,7 @@ export class FighterRig {
     const lensGlassMat = new THREE.MeshStandardMaterial({
       color: 0xbae6fd,
       transparent: true,
-      opacity: 0.36,
+      opacity: 0.24,
       roughness: 0.1,
       metalness: 0.9
     });
@@ -153,7 +581,7 @@ export class FighterRig {
     root.scale.set(bulk, heightScale, bulk);
     this.group.add(root);
 
-    // Floating 3D Nameplate Banner above fighter head for 100% instant identification!
+    // Floating 3D Nameplate Banner above fighter head
     const nameplateSprite = this.createFloatingNameplate();
     root.add(nameplateSprite);
 
@@ -182,7 +610,6 @@ export class FighterRig {
 
     // Lower Garment Drapes (Saree / Saffron Monastic Dhoti Robe / Kurta Tunic)
     if (p.id === 'mamata') {
-      // Iconic Bengal White Tant Saree with Crisp Blue Border Pleats
       const sareeSkirt = this.registerMesh(
         new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.34, 0.74, 16), primaryMat)
       );
@@ -195,14 +622,12 @@ export class FighterRig {
       blueBorder.position.y = -0.66;
       hips.add(blueBorder);
 
-      // Front Saree Pleats Fold
       const frontPleat = this.registerMesh(
         new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.72, 0.06), secondaryMat)
       );
       frontPleat.position.set(0, -0.35, 0.29);
       hips.add(frontPleat);
     } else if (p.id === 'yogi') {
-      // Flowing Bhagwa / Saffron Monastic Dhoti-Chola Robe
       const dhotiRobe = this.registerMesh(
         new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.34, 0.64, 16), primaryMat)
       );
@@ -215,7 +640,6 @@ export class FighterRig {
       sashFold.position.set(0, -0.29, 0.28);
       hips.add(sashFold);
     } else if (p.id === 'modi') {
-      // Crisp Long Cream Kurta Tunic
       const kurtaBottom = this.registerMesh(
         new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.31, 0.42, 14), primaryMat)
       );
@@ -251,21 +675,18 @@ export class FighterRig {
 
     // ================= CHARACTER-SPECIFIC CHEST & OUTFIT DETAILS =================
     if (p.id === 'modi') {
-      // 1. NARENDRA MODI: Saffron Mandarin-Collar Nehru Jacket + Angavastram Scarf + Gold Buttons + Lotus Badge
       const collar = this.registerMesh(
         new THREE.Mesh(new THREE.CylinderGeometry(0.145, 0.155, 0.13, 14), secondaryMat)
       );
       collar.position.set(0, 0.39, 0);
       chest.add(collar);
 
-      // White V-Neck Kurta Placket visible under collar
       const vNeck = this.registerMesh(
         new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.14, 0.03), primaryMat)
       );
       vNeck.position.set(0, 0.33, chestDepth / 2 + 0.008);
       chest.add(vNeck);
 
-      // 4 Gold Jacket Buttons down the center
       for (let b = 0; b < 4; b++) {
         const btn = this.registerMesh(
           new THREE.Mesh(new THREE.SphereGeometry(0.022, 8, 8), glassesMat)
@@ -274,7 +695,6 @@ export class FighterRig {
         chest.add(btn);
       }
 
-      // Saffron & Gold Angavastram Stole draped around neck & shoulders
       const stoleLeft = this.registerMesh(
         new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.42, 0.04), primaryMat)
       );
@@ -285,14 +705,12 @@ export class FighterRig {
       stoleRight.position.set(-0.16, 0.17, chestDepth / 2 + 0.018);
       chest.add(stoleLeft, stoleRight);
 
-      // Glowing Lotus Pin on Left Pocket
       const lotusPin = this.registerMesh(
         new THREE.Mesh(new THREE.OctahedronGeometry(0.052, 0), accentMat)
       );
       lotusPin.position.set(0.15, 0.27, chestDepth / 2 + 0.025);
       chest.add(lotusPin);
     } else if (p.id === 'mamata') {
-      // 2. MAMATA BANERJEE: White Tant Saree + Diagonal Blue-Border Pallu over Left Shoulder + Jhola Shoulder Bag
       const palluMain = this.registerMesh(
         new THREE.Mesh(new THREE.BoxGeometry(0.51, 0.42, 0.32), primaryMat)
       );
@@ -313,7 +731,6 @@ export class FighterRig {
       palluBlueStripe2.rotation.z = -0.36;
       chest.add(palluBlueStripe1, palluBlueStripe2);
     } else if (p.id === 'yogi') {
-      // 3. YOGI BABA: Bhagwa Saffron Monastic Robes + Rudraksha Mala Necklace + Draped Saffron Angavastram Shawl
       const shawl = this.registerMesh(
         new THREE.Mesh(new THREE.TorusGeometry(0.18, 0.055, 10, 18), secondaryMat)
       );
@@ -321,7 +738,6 @@ export class FighterRig {
       shawl.position.set(0, 0.36, 0.02);
       chest.add(shawl);
 
-      // Sacred Rudraksha Bead Mala around neck/chest
       const malaGroup = new THREE.Group();
       const beadCount = 14;
       for (let i = 0; i < beadCount; i++) {
@@ -338,14 +754,12 @@ export class FighterRig {
       }
       chest.add(malaGroup);
 
-      // Gold Bulldozer Crest Emblem on Chest
       const crest = this.registerMesh(
         new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.08, 0.03), accentMat)
       );
       crest.position.set(0, 0.22, chestDepth / 2 + 0.015);
       chest.add(crest);
     } else if (p.id === 'kejriwal') {
-      // 4. ARVIND KEJRIWAL: Blue V-Neck SweaterVest Pattern + Thick Maroon Winter Muffler + Pocket Pen
       const mufflerRing = this.registerMesh(
         new THREE.Mesh(new THREE.TorusGeometry(0.16, 0.06, 12, 20), secondaryMat)
       );
@@ -363,14 +777,12 @@ export class FighterRig {
       mufflerTail2.position.set(-0.05, 0.23, chestDepth / 2 + 0.025);
       chest.add(mufflerTail1, mufflerTail2);
 
-      // Shirt Pocket + 2 Pens clipped in pocket!
       const pen1 = this.registerMesh(
         new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.008, 0.09, 6), glassesMat)
       );
       pen1.position.set(0.14, 0.26, chestDepth / 2 + 0.016);
       chest.add(pen1);
     } else if (p.id === 'rahul') {
-      // 5. RAHUL GANDHI: Crisp White Polo Collar + Placket Buttons + Tricolor Bharat Jodo Yatra Arm/Chest Badge
       const poloCollar = this.registerMesh(
         new THREE.Mesh(new THREE.TorusGeometry(0.125, 0.032, 8, 16), whiteMat)
       );
@@ -384,7 +796,6 @@ export class FighterRig {
       placket.position.set(0, 0.29, chestDepth / 2 + 0.01);
       chest.add(placket);
 
-      // Tricolor Ribbon Badge on Left Chest
       const triOrange = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.02, 0.02), this.createMat(0xff6b00));
       triOrange.position.set(0.14, 0.28, chestDepth / 2 + 0.016);
       const triWhite = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.02, 0.02), whiteMat);
@@ -394,13 +805,13 @@ export class FighterRig {
       chest.add(triOrange, triWhite, triGreen);
     }
 
-    // ================= NECK & SCULPTED EXPRESSIVE HEAD =================
+    // ================= NECK & HIGH-DETAIL RECOGNIZABLE 3D HEAD =================
     const neck = new THREE.Group();
     neck.position.y = 0.4;
     chest.add(neck);
 
     const neckMesh = this.registerMesh(
-      new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.105, 0.12, 12), skinMat)
+      new THREE.Mesh(new THREE.CylinderGeometry(0.095, 0.11, 0.13, 14), skinMat)
     );
     neckMesh.position.y = 0.04;
     neck.add(neckMesh);
@@ -409,288 +820,292 @@ export class FighterRig {
     head.position.y = 0.11;
     neck.add(head);
 
-    // Sculpted Cranium + Jawline + Ears + Expressive Eyes (Sclera + Pupils + Eyebrows)
+    // 1. Base Sculpted Cranium & Jawline
     const headMesh = this.registerMesh(
-      new THREE.Mesh(new THREE.SphereGeometry(0.205, 22, 22), skinMat)
+      new THREE.Mesh(new THREE.SphereGeometry(0.212, 28, 28), skinMat)
     );
-    headMesh.scale.set(0.96, 1.1, 0.98);
-    headMesh.position.y = 0.16;
+    headMesh.scale.set(0.98, 1.12, 1.0);
+    headMesh.position.y = 0.165;
     head.add(headMesh);
 
-    // Left & Right Ears
+    // 2. High-Resolution 512x512 Portrait Face Texture mapped onto 3D Front Facial Surface!
+    const faceCanvas = createDetailedFaceCanvas(p, false);
+    const faceTexture = new THREE.CanvasTexture(faceCanvas);
+    faceTexture.colorSpace = THREE.SRGBColorSpace;
+    faceTexture.needsUpdate = true;
+
+    const faceSurfaceGeo = new THREE.SphereGeometry(
+      0.2145,
+      32,
+      32,
+      Math.PI * 0.16,
+      Math.PI * 0.68,
+      Math.PI * 0.14,
+      Math.PI * 0.72
+    );
+    const faceSurfaceMat = new THREE.MeshStandardMaterial({
+      map: faceTexture,
+      roughness: 0.42,
+      metalness: 0.04
+    });
+    const faceSurfaceMesh = new THREE.Mesh(faceSurfaceGeo, faceSurfaceMat);
+    faceSurfaceMesh.scale.set(0.98, 1.12, 1.0);
+    faceSurfaceMesh.position.y = 0.165;
+    head.add(faceSurfaceMesh);
+
+    // 3. Sculpted 3D Nose Bridge, Nose Tip & Cheekbones for True 3D Depth from Side/Angle Cameras
+    const noseBridge = this.registerMesh(
+      new THREE.Mesh(new THREE.CylinderGeometry(0.016, 0.026, 0.082, 10), skinMat)
+    );
+    noseBridge.position.set(0, 0.168, 0.212);
+    noseBridge.rotation.x = -0.26;
+    const noseTip = this.registerMesh(
+      new THREE.Mesh(new THREE.SphereGeometry(0.026, 12, 12), skinMat)
+    );
+    noseTip.position.set(0, 0.135, 0.228);
+    head.add(noseBridge, noseTip);
+
+    // Left & Right Sculpted Ears with Inner Concha
     [-1, 1].forEach((sign) => {
       const ear = this.registerMesh(
-        new THREE.Mesh(new THREE.SphereGeometry(0.048, 10, 10), skinMat)
+        new THREE.Mesh(new THREE.SphereGeometry(0.052, 12, 12), skinMat)
       );
-      ear.scale.set(0.45, 1.15, 0.7);
-      ear.position.set(sign * 0.195, 0.15, 0.0);
+      ear.scale.set(0.45, 1.18, 0.72);
+      ear.position.set(sign * 0.205, 0.16, 0.0);
       head.add(ear);
     });
 
-    // Expressive White Sclera + Dark Iris/Pupils
-    [-1, 1].forEach((sign) => {
-      const sclera = new THREE.Mesh(new THREE.SphereGeometry(0.034, 12, 12), whiteMat);
-      sclera.scale.set(1.1, 0.85, 0.6);
-      sclera.position.set(sign * 0.072, 0.185, 0.175);
-
-      const pupil = new THREE.Mesh(new THREE.SphereGeometry(0.019, 10, 10), darkMat);
-      pupil.position.set(sign * 0.072, 0.185, 0.195);
-
-      // Expressive Eyebrow
-      const browMat = p.id === 'modi' ? hairMat : darkMat;
-      const brow = this.registerMesh(
-        new THREE.Mesh(new THREE.BoxGeometry(0.072, 0.018, 0.025), browMat)
-      );
-      brow.position.set(sign * 0.072, 0.228, 0.185);
-      brow.rotation.z = sign * -0.14;
-
-      head.add(sclera, pupil, brow);
-    });
-
-    // Sculpted Nose Bridge & Tip
-    const nose = this.registerMesh(
-      new THREE.Mesh(new THREE.ConeGeometry(0.032, 0.085, 10), skinMat)
-    );
-    nose.rotation.x = Math.PI / 2 - 0.15;
-    nose.position.set(0, 0.145, 0.21);
-    head.add(nose);
-
-    // Expressive Mouth / Smile Line
-    const mouth = new THREE.Mesh(
-      new THREE.BoxGeometry(0.075, 0.016, 0.02),
-      this.createMat(0x7f1d1d, 0.5)
-    );
-    mouth.position.set(0, 0.075, 0.188);
-    head.add(mouth);
-
-    // ================= CHARACTER-SPECIFIC HEAD / HAIR / GLASSES / IDENTIFIERS =================
+    // ================= CHARACTER-SPECIFIC 3D FACIAL SCULPT, HAIR & IDENTIFIERS =================
     if (p.id === 'modi') {
-      // NARENDRA MODI: Iconic Full Snowy-White Beard, Mustache, Swept White Hair & Gold Rimless Spectacles
-      const beardMain = this.registerMesh(
-        new THREE.Mesh(new THREE.SphereGeometry(0.185, 16, 14), hairMat)
+      // NARENDRA MODI: Sculpted 3D Snowy-White Beard & Mustache Volume, Swept White Hair & Gold Rimless Spectacles
+      const beardLower = this.registerMesh(
+        new THREE.Mesh(new THREE.ConeGeometry(0.155, 0.21, 18), hairMat)
       );
-      beardMain.scale.set(1.06, 1.08, 0.98);
-      beardMain.position.set(0, 0.055, 0.075);
-      head.add(beardMain);
+      beardLower.rotation.x = Math.PI - 0.12;
+      beardLower.position.set(0, -0.02, 0.105);
+      head.add(beardLower);
 
-      const beardChin = this.registerMesh(
-        new THREE.Mesh(new THREE.ConeGeometry(0.135, 0.18, 14), hairMat)
+      const jawBeard = this.registerMesh(
+        new THREE.Mesh(
+          new THREE.SphereGeometry(0.208, 18, 14, 0, Math.PI * 2, Math.PI * 0.55, Math.PI * 0.45),
+          hairMat
+        )
       );
-      beardChin.rotation.x = Math.PI;
-      beardChin.position.set(0, -0.04, 0.11);
-      head.add(beardChin);
+      jawBeard.scale.set(1.04, 1.08, 1.02);
+      jawBeard.position.set(0, 0.145, 0.01);
+      head.add(jawBeard);
 
-      const mustache = this.registerMesh(
-        new THREE.Mesh(new THREE.BoxGeometry(0.135, 0.034, 0.05), hairMat)
+      const mustache3D = this.registerMesh(
+        new THREE.Mesh(new THREE.TorusGeometry(0.058, 0.022, 10, 16, Math.PI), hairMat)
       );
-      mustache.position.set(0, 0.105, 0.195);
-      head.add(mustache);
+      mustache3D.rotation.x = 0.2;
+      mustache3D.rotation.z = Math.PI;
+      mustache3D.position.set(0, 0.115, 0.205);
+      head.add(mustache3D);
 
-      // Swept White Hair Dome + Sideburns
+      // Swept White Hair Crown & Back
       const hairDome = this.registerMesh(
         new THREE.Mesh(
-          new THREE.SphereGeometry(0.212, 18, 14, 0, Math.PI * 2, 0, Math.PI * 0.58),
+          new THREE.SphereGeometry(0.222, 20, 16, Math.PI * 0.82, Math.PI * 1.36, 0, Math.PI * 0.65),
           hairMat
         )
       );
-      hairDome.position.set(0, 0.18, -0.01);
-      head.add(hairDome);
+      hairDome.position.set(0, 0.185, -0.015);
+      const topWave = this.registerMesh(
+        new THREE.Mesh(
+          new THREE.SphereGeometry(0.22, 18, 14, 0, Math.PI * 2, 0, Math.PI * 0.34),
+          hairMat
+        )
+      );
+      topWave.position.set(0, 0.195, -0.005);
+      head.add(hairDome, topWave);
 
-      // Gold Rimless Rectangular Spectacles + Bridge + Ear Temples
+      // 3D Gold Rimless Spectacles + Ear Temple Arms
       [-1, 1].forEach((sign) => {
-        const frame = new THREE.Mesh(new THREE.TorusGeometry(0.046, 0.006, 8, 18), glassesMat);
-        frame.scale.set(1.15, 0.85, 1);
-        frame.position.set(sign * 0.072, 0.185, 0.198);
+        const frame = new THREE.Mesh(new THREE.TorusGeometry(0.046, 0.005, 8, 18), glassesMat);
+        frame.scale.set(1.18, 0.82, 1);
+        frame.position.set(sign * 0.072, 0.192, 0.214);
         const lens = new THREE.Mesh(new THREE.CircleGeometry(0.043, 16), lensGlassMat);
-        lens.scale.set(1.15, 0.85, 1);
-        lens.position.set(sign * 0.072, 0.185, 0.199);
-        head.add(frame, lens);
+        lens.scale.set(1.18, 0.82, 1);
+        lens.position.set(sign * 0.072, 0.192, 0.215);
+        const templeArm = new THREE.Mesh(new THREE.BoxGeometry(0.006, 0.008, 0.19), glassesMat);
+        templeArm.position.set(sign * 0.128, 0.195, 0.11);
+        head.add(frame, lens, templeArm);
       });
-      const bridge = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.008, 0.01), glassesMat);
-      bridge.position.set(0, 0.19, 0.2);
+      const bridge = new THREE.Mesh(new THREE.BoxGeometry(0.038, 0.007, 0.01), glassesMat);
+      bridge.position.set(0, 0.196, 0.216);
       head.add(bridge);
     } else if (p.id === 'mamata') {
-      // MAMATA BANERJEE: Center-Parted Dark Hair, Prominent Back Bun (Jura), Red Bindi & Spectacles
-      const hairCap = this.registerMesh(
+      // MAMATA BANERJEE: Parted Black Hair Crown, Large Recognizable Back Jura Bun with Blue Ribbon & 3D Spectacles
+      const hairBack = this.registerMesh(
         new THREE.Mesh(
-          new THREE.SphereGeometry(0.212, 18, 14, 0, Math.PI * 2, 0, Math.PI * 0.56),
+          new THREE.SphereGeometry(0.22, 20, 16, Math.PI * 0.8, Math.PI * 1.4, 0, Math.PI * 0.68),
           hairMat
         )
       );
-      hairCap.position.set(0, 0.18, -0.015);
-      head.add(hairCap);
+      hairBack.position.set(0, 0.18, -0.015);
+      const hairTop = this.registerMesh(
+        new THREE.Mesh(
+          new THREE.SphereGeometry(0.218, 18, 14, 0, Math.PI * 2, 0, Math.PI * 0.34),
+          hairMat
+        )
+      );
+      hairTop.position.set(0, 0.19, -0.01);
+      head.add(hairBack, hairTop);
 
-      // Large Recognizable Back Jura Bun + Blue Hair Tie Ring
+      // Iconic Back Jura Bun + Blue Hair Tie Ring
       const bun = this.registerMesh(
-        new THREE.Mesh(new THREE.SphereGeometry(0.115, 14, 14), hairMat)
+        new THREE.Mesh(new THREE.SphereGeometry(0.12, 16, 16), hairMat)
       );
-      bun.position.set(0, 0.14, -0.23);
+      bun.position.set(0, 0.14, -0.24);
       const bunRibbon = this.registerMesh(
-        new THREE.Mesh(new THREE.TorusGeometry(0.088, 0.016, 8, 16), secondaryMat)
+        new THREE.Mesh(new THREE.TorusGeometry(0.092, 0.018, 10, 18), secondaryMat)
       );
-      bunRibbon.position.set(0, 0.14, -0.17);
+      bunRibbon.position.set(0, 0.14, -0.18);
       head.add(bun, bunRibbon);
 
-      // Prominent Red Forehead Bindi
-      const bindi = new THREE.Mesh(new THREE.SphereGeometry(0.02, 10, 10), vermilionMat);
-      bindi.position.set(0, 0.24, 0.195);
-      head.add(bindi);
-
-      // Rectangular Spectacles
-      [-1, 1].forEach((sign) => {
-        const frame = new THREE.Mesh(new THREE.TorusGeometry(0.044, 0.006, 8, 16), darkMat);
-        frame.scale.set(1.15, 0.82, 1);
-        frame.position.set(sign * 0.072, 0.185, 0.198);
-        const lens = new THREE.Mesh(new THREE.CircleGeometry(0.041, 14), lensGlassMat);
-        lens.scale.set(1.15, 0.82, 1);
-        lens.position.set(sign * 0.072, 0.185, 0.199);
-        head.add(frame, lens);
-      });
-    } else if (p.id === 'yogi') {
-      // YOGI BABA: Clean-Shaven Monk Head, Sacred Chandan/Vermilion Forehead Tilak, Golden Kundal Hoop Earrings & Tinted Aviator Shades!
-      // 1. Sacred Forehead Tilak (Yellow Sandalwood U-Tripundra + Red Vermilion Bindu)
-      const tilakOuter = this.registerMesh(
-        new THREE.Mesh(new THREE.BoxGeometry(0.048, 0.075, 0.015), sandalwoodMat)
-      );
-      tilakOuter.position.set(0, 0.255, 0.192);
-      tilakOuter.rotation.x = -0.18;
-      const tilakCenter = this.registerMesh(
+      // 3D Red Bindi Relief
+      const bindi = this.registerMesh(
         new THREE.Mesh(new THREE.SphereGeometry(0.016, 10, 10), vermilionMat)
       );
-      tilakCenter.position.set(0, 0.245, 0.2);
-      head.add(tilakOuter, tilakCenter);
+      bindi.position.set(0, 0.245, 0.208);
+      head.add(bindi);
 
-      // 2. Iconic Nath Sampradaya Golden Kundal Earrings in Both Ears!
+      // 3D Rectangular Spectacles
+      [-1, 1].forEach((sign) => {
+        const frame = new THREE.Mesh(new THREE.TorusGeometry(0.044, 0.005, 8, 16), darkMat);
+        frame.scale.set(1.18, 0.8, 1);
+        frame.position.set(sign * 0.072, 0.192, 0.214);
+        const templeArm = new THREE.Mesh(new THREE.BoxGeometry(0.006, 0.008, 0.19), darkMat);
+        templeArm.position.set(sign * 0.125, 0.195, 0.11);
+        head.add(frame, templeArm);
+      });
+    } else if (p.id === 'yogi') {
+      // YOGI BABA: Unobscured Recognizable Monk Face, 3D Forehead Tilak, Golden Nath Sampradaya Kundal Earrings & Back Shikha!
+      const tilakRelief = this.registerMesh(
+        new THREE.Mesh(new THREE.BoxGeometry(0.042, 0.068, 0.012), sandalwoodMat)
+      );
+      tilakRelief.position.set(0, 0.26, 0.202);
+      tilakRelief.rotation.x = -0.22;
+      const tilakBindu = this.registerMesh(
+        new THREE.Mesh(new THREE.SphereGeometry(0.015, 10, 10), vermilionMat)
+      );
+      tilakBindu.position.set(0, 0.252, 0.21);
+      head.add(tilakRelief, tilakBindu);
+
+      // Iconic Nath Sampradaya Large Golden Kundal Hoop Earrings in Both Ears!
       [-1, 1].forEach((sign) => {
         const kundal = this.registerMesh(
-          new THREE.Mesh(new THREE.TorusGeometry(0.036, 0.009, 8, 16), glassesMat)
+          new THREE.Mesh(new THREE.TorusGeometry(0.038, 0.01, 10, 18), glassesMat)
         );
         kundal.rotation.y = Math.PI / 2;
-        kundal.position.set(sign * 0.205, 0.105, 0.01);
+        kundal.position.set(sign * 0.215, 0.11, 0.01);
         head.add(kundal);
       });
 
-      // 3. Back Shikha (Small tuft on crown back)
+      // Back Shikha tuft on crown
       const shikha = this.registerMesh(
-        new THREE.Mesh(new THREE.ConeGeometry(0.025, 0.08, 8), darkMat)
+        new THREE.Mesh(new THREE.ConeGeometry(0.026, 0.085, 8), darkMat)
       );
       shikha.rotation.x = -0.8;
-      shikha.position.set(0, 0.31, -0.15);
+      shikha.position.set(0, 0.32, -0.16);
       head.add(shikha);
-
-      // 4. Badass "Bulldozer Baba" Dark Aviator Sunglasses (Optional signature swag!)
-      const aviatorLensMat = new THREE.MeshStandardMaterial({
-        color: 0x1e1b4b,
-        roughness: 0.1,
-        metalness: 0.9,
-        transparent: true,
-        opacity: 0.72
-      });
-      [-1, 1].forEach((sign) => {
-        const rim = new THREE.Mesh(new THREE.TorusGeometry(0.046, 0.006, 8, 16), glassesMat);
-        rim.scale.set(1.18, 0.9, 1);
-        rim.position.set(sign * 0.072, 0.185, 0.198);
-        const shade = new THREE.Mesh(new THREE.CircleGeometry(0.044, 14), aviatorLensMat);
-        shade.scale.set(1.18, 0.9, 1);
-        shade.position.set(sign * 0.072, 0.185, 0.199);
-        head.add(rim, shade);
-      });
-      const bridge = new THREE.Mesh(new THREE.BoxGeometry(0.044, 0.008, 0.01), glassesMat);
-      bridge.position.set(0, 0.195, 0.2);
-      head.add(bridge);
     } else if (p.id === 'kejriwal') {
-      // ARVIND KEJRIWAL: Crisp White Boat-Shaped Gandhi Topi ("MEIN AAM AADMI"), Thick Mustache, Glasses & Maroon Muffler Ear-Wrap
-      const hairSides = this.registerMesh(
-        new THREE.Mesh(
-          new THREE.SphereGeometry(0.208, 16, 12, 0, Math.PI * 2, 0, Math.PI * 0.52),
-          hairMat
-        )
-      );
-      hairSides.position.set(0, 0.17, -0.01);
-      head.add(hairSides);
-
-      // Boat-shaped White Gandhi Topi
+      // ARVIND KEJRIWAL: Sculpted Boat-Shaped White Gandhi Topi with Printed Text, Thick 3D Mustache, Glasses & Maroon Muffler
       const topiGroup = new THREE.Group();
+
+      // Custom canvas texture for the side of the Gandhi Topi ("मैं आम आदमी")
+      const topiCanvas = document.createElement('canvas');
+      topiCanvas.width = 256;
+      topiCanvas.height = 64;
+      const tCtx = topiCanvas.getContext('2d')!;
+      tCtx.fillStyle = '#ffffff';
+      tCtx.fillRect(0, 0, 256, 64);
+      tCtx.fillStyle = '#0f172a';
+      tCtx.font = '900 28px "Segoe UI", Arial, sans-serif';
+      tCtx.textAlign = 'center';
+      tCtx.textBaseline = 'middle';
+      tCtx.fillText('मैं आम आदमी', 128, 34);
+      const topiTex = new THREE.CanvasTexture(topiCanvas);
+      const topiSideMat = new THREE.MeshStandardMaterial({ map: topiTex, roughness: 0.35 });
+
       const topiBase = this.registerMesh(
-        new THREE.Mesh(new THREE.BoxGeometry(0.21, 0.11, 0.38), whiteMat)
+        new THREE.Mesh(new THREE.BoxGeometry(0.215, 0.11, 0.39), topiSideMat)
       );
-      topiBase.position.set(0, 0.34, 0.01);
+      topiBase.position.set(0, 0.345, 0.01);
       const topiPeak = this.registerMesh(
-        new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.06, 0.39), whiteMat)
+        new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.062, 0.4), whiteMat)
       );
-      topiPeak.position.set(0, 0.4, 0.01);
-      // Black band trim on Topi
+      topiPeak.position.set(0, 0.405, 0.01);
       const topiBand = this.registerMesh(
-        new THREE.Mesh(new THREE.BoxGeometry(0.215, 0.024, 0.385), darkMat)
+        new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.022, 0.395), darkMat)
       );
-      topiBand.position.set(0, 0.3, 0.01);
+      topiBand.position.set(0, 0.302, 0.01);
       topiGroup.add(topiBase, topiPeak, topiBand);
       head.add(topiGroup);
 
-      // Prominent Thick Black Mustache
+      // Prominent Thick 3D Black Mustache
       const mustache = this.registerMesh(
-        new THREE.Mesh(new THREE.BoxGeometry(0.135, 0.038, 0.05), darkMat)
+        new THREE.Mesh(new THREE.BoxGeometry(0.135, 0.036, 0.048), darkMat)
       );
-      mustache.position.set(0, 0.105, 0.198);
+      mustache.position.set(0, 0.105, 0.212);
       head.add(mustache);
 
-      // Black-Rimmed Spectacles
+      // Black-Rimmed Prescription Spectacles
       [-1, 1].forEach((sign) => {
-        const frame = new THREE.Mesh(new THREE.TorusGeometry(0.045, 0.008, 8, 16), darkMat);
-        frame.scale.set(1.15, 0.85, 1);
-        frame.position.set(sign * 0.072, 0.185, 0.198);
-        const lens = new THREE.Mesh(new THREE.CircleGeometry(0.042, 14), lensGlassMat);
-        lens.scale.set(1.15, 0.85, 1);
-        lens.position.set(sign * 0.072, 0.185, 0.199);
-        head.add(frame, lens);
+        const frame = new THREE.Mesh(new THREE.TorusGeometry(0.046, 0.007, 8, 16), darkMat);
+        frame.scale.set(1.18, 0.84, 1);
+        frame.position.set(sign * 0.072, 0.192, 0.214);
+        const templeArm = new THREE.Mesh(new THREE.BoxGeometry(0.007, 0.009, 0.19), darkMat);
+        templeArm.position.set(sign * 0.126, 0.195, 0.11);
+        head.add(frame, templeArm);
       });
 
-      // Iconic Maroon Muffler Wrapped Over Ears & Under Chin
+      // Maroon Winter Muffler Wrapped Over Ears & Under Chin
       const earWrap = this.registerMesh(
-        new THREE.Mesh(new THREE.TorusGeometry(0.198, 0.034, 10, 20), secondaryMat)
+        new THREE.Mesh(new THREE.TorusGeometry(0.205, 0.034, 10, 20), secondaryMat)
       );
       earWrap.rotation.y = Math.PI / 2;
-      earWrap.position.set(0, 0.15, 0);
+      earWrap.position.set(0, 0.155, 0);
       head.add(earWrap);
     } else if (p.id === 'rahul') {
-      // RAHUL GANDHI: Volumetric Wavy Curly Salt-and-Pepper Hair, Dimples & Full Bharat Jodo Beard
-      const hairCap = this.registerMesh(
+      // RAHUL GANDHI: Volumetric Wavy Curly Salt-and-Pepper Hair & Full Bharat Jodo Beard
+      const hairBack = this.registerMesh(
         new THREE.Mesh(
-          new THREE.SphereGeometry(0.214, 18, 14, 0, Math.PI * 2, 0, Math.PI * 0.58),
+          new THREE.SphereGeometry(0.224, 20, 16, Math.PI * 0.8, Math.PI * 1.4, 0, Math.PI * 0.65),
           hairMat
         )
       );
-      hairCap.position.set(0, 0.185, -0.01);
-      head.add(hairCap);
+      hairBack.position.set(0, 0.19, -0.015);
+      head.add(hairBack);
 
-      // Sculpted Wavy Hair Curls along forehead & crown
       const curlOffsets = [
-        [-0.09, 0.34, 0.1],
-        [-0.03, 0.36, 0.12],
-        [0.04, 0.36, 0.12],
-        [0.1, 0.34, 0.09],
-        [-0.14, 0.29, 0.04],
-        [0.14, 0.29, 0.04]
+        [-0.09, 0.345, 0.1],
+        [-0.03, 0.365, 0.12],
+        [0.04, 0.365, 0.12],
+        [0.1, 0.345, 0.09],
+        [-0.145, 0.295, 0.04],
+        [0.145, 0.295, 0.04],
+        [0.0, 0.37, 0.02]
       ];
       for (const [cx, cy, cz] of curlOffsets) {
         const curl = this.registerMesh(
-          new THREE.Mesh(new THREE.SphereGeometry(0.055, 10, 10), hairMat)
+          new THREE.Mesh(new THREE.SphereGeometry(0.058, 12, 12), hairMat)
         );
         curl.position.set(cx, cy, cz);
         head.add(curl);
       }
 
-      // Salt & Pepper Bharat Jodo Beard + Mustache
-      const beard = this.registerMesh(
-        new THREE.Mesh(new THREE.SphereGeometry(0.168, 14, 12), hairMat)
+      // 3D Salt-and-Pepper Jaw Beard
+      const jawBeard = this.registerMesh(
+        new THREE.Mesh(
+          new THREE.SphereGeometry(0.204, 18, 14, 0, Math.PI * 2, Math.PI * 0.58, Math.PI * 0.42),
+          hairMat
+        )
       );
-      beard.scale.set(1.02, 0.96, 0.95);
-      beard.position.set(0, 0.065, 0.065);
-      const mustache = this.registerMesh(
-        new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.028, 0.045), hairMat)
-      );
-      mustache.position.set(0, 0.105, 0.195);
-      head.add(beard, mustache);
+      jawBeard.scale.set(1.02, 1.05, 1.0);
+      jawBeard.position.set(0, 0.14, 0.01);
+      head.add(jawBeard);
     }
 
     // ================= ARMS & HANDS =================
@@ -700,8 +1115,7 @@ export class FighterRig {
       shoulder.position.set(sign * (chestWidth / 2 + 0.06), 0.31, 0);
       chest.add(shoulder);
 
-      const sleeveMat =
-        p.id === 'kejriwal' || p.id === 'yogi' ? primaryMat : whiteMat;
+      const sleeveMat = p.id === 'kejriwal' || p.id === 'yogi' ? primaryMat : whiteMat;
       const upperArm = this.registerMesh(
         new THREE.Mesh(new THREE.CylinderGeometry(0.072, 0.064, 0.28, 12), sleeveMat)
       );
@@ -718,7 +1132,6 @@ export class FighterRig {
       forearm.position.y = -0.13;
       elbow.add(forearm);
 
-      // Glowing Aura Wristband (Rudraksha wrist mala for Yogi Baba)
       const wristBand = this.registerMesh(
         new THREE.Mesh(
           new THREE.CylinderGeometry(0.065, 0.065, 0.06, 12),
@@ -748,7 +1161,6 @@ export class FighterRig {
     rightArm.hand.add(weaponProp);
 
     if (p.signatureProp === 'lotus_mic') {
-      // Golden Parliamentary Microphone with Saffron Lotus Petals
       const handle = this.registerMesh(
         new THREE.Mesh(new THREE.CylinderGeometry(0.022, 0.022, 0.28, 10), glassesMat)
       );
@@ -760,7 +1172,6 @@ export class FighterRig {
       micHead.position.z = 0.26;
       weaponProp.add(handle, micHead);
     } else if (p.signatureProp === 'hawai_chappal') {
-      // Iconic Blue & White Hawai Chappal held ready for action!
       const sole = this.registerMesh(
         new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.032, 0.28), whiteMat)
       );
@@ -771,7 +1182,6 @@ export class FighterRig {
       strap.position.set(0, 0.025, 0.17);
       weaponProp.add(sole, strap);
     } else if (p.signatureProp === 'bulldozer_blade') {
-      // YOGI BABA: Heavy JCB Yellow Bulldozer Loader Bucket & Hydraulic Arm Gauntlet!
       const jcbYellowMat = this.createMat(0xfacc15, 0.25, 0.7, 0xf59e0b, 0.25);
       const hydraulicArm = this.registerMesh(
         new THREE.Mesh(new THREE.BoxGeometry(0.055, 0.055, 0.26), darkMat)
@@ -783,7 +1193,6 @@ export class FighterRig {
       );
       loaderBucket.position.set(0, 0, 0.26);
 
-      // Steel Bulldozer Teeth along front edge
       for (let t = -2; t <= 2; t++) {
         const tooth = this.registerMesh(
           new THREE.Mesh(new THREE.ConeGeometry(0.018, 0.06, 6), glassesMat)
@@ -794,7 +1203,6 @@ export class FighterRig {
       }
       weaponProp.add(hydraulicArm, loaderBucket);
     } else if (p.signatureProp === 'muffler_broom') {
-      // Legendary Aam Aadmi Jhadu (Broom)
       const stick = this.registerMesh(
         new THREE.Mesh(new THREE.CylinderGeometry(0.022, 0.026, 0.34, 10), this.createMat(0x854d0e))
       );
@@ -807,7 +1215,6 @@ export class FighterRig {
       bristles.position.z = 0.39;
       weaponProp.add(stick, bristles);
     } else if (p.signatureProp === 'padyatra_torch') {
-      // Glowing Tricolor Bharat Jodo Baton
       const baton = this.registerMesh(
         new THREE.Mesh(new THREE.CylinderGeometry(0.028, 0.024, 0.32, 10), accentMat)
       );
@@ -844,7 +1251,6 @@ export class FighterRig {
       ankle.position.y = -0.43;
       knee.add(ankle);
 
-      // Footwear: Hawai Chappal for Mamata, Wooden Paduka / Saffron Sandals for Yogi, Shoes for others
       const shoeMat =
         p.id === 'mamata'
           ? secondaryMat
@@ -893,7 +1299,6 @@ export class FighterRig {
   }
 
   public updateVisuals(dt: number, isRage: boolean, isPowerCrush: boolean, time: number): void {
-    // Update hit flash
     if (this.hitFlashTime > 0) {
       this.hitFlashTime -= dt;
       const flash = this.hitFlashTime > 0;
@@ -906,10 +1311,8 @@ export class FighterRig {
       }
     }
 
-    // Subtle bobbing on floating nameplate
     this.joints.nameplateSprite.position.y = 2.34 + Math.sin(time * 3.5) * 0.03;
 
-    // Update Rage / Power Crush Aura
     const auraMat = this.joints.rageAura.material as THREE.MeshBasicMaterial;
     if (isPowerCrush) {
       auraMat.color.setHex(0xffffff);

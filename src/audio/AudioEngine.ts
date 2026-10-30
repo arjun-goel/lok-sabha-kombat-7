@@ -30,9 +30,10 @@ export class AudioEngine {
       '/sounds/rahul_maza_aaya.mp3',
       '/sounds/rahul_khatam_short.mp3',
       '/sounds/kejriwal_toh_kar_na.mp3',
-      '/sounds/yogi_meme.mp3',
-      '/sounds/yogi_bulldozer.mp3',
-      '/sounds/yogi_system.mp3'
+      '/sounds/yogi_mitti.mp3',
+      '/sounds/yogi_garmi.mp3',
+      '/sounds/yogi_naam.mp3',
+      '/sounds/yogi_thok.mp3'
     ];
     for (const url of urls) {
       const audio = new Audio(url);
@@ -72,6 +73,24 @@ export class AudioEngine {
 
     audio.currentTime = 0;
     audio.volume = Math.min(1, vol * 1.0);
+
+    // Apply deep commanding male pitch shift for Yogi Baba's Hindi speech clips
+    const isYogiClip = url.includes('yogi_');
+    const audioExt = audio as HTMLAudioElement & {
+      preservesPitch?: boolean;
+      mozPreservesPitch?: boolean;
+      webkitPreservesPitch?: boolean;
+    };
+    if (isYogiClip) {
+      audioExt.preservesPitch = false;
+      audioExt.mozPreservesPitch = false;
+      audioExt.webkitPreservesPitch = false;
+      audio.playbackRate = 0.84;
+    } else {
+      audioExt.preservesPitch = true;
+      audio.playbackRate = 1.0;
+    }
+
     this.currentMemeAudio = audio;
     audio.play().catch(() => {});
   }

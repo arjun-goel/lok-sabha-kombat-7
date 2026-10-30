@@ -1,5 +1,6 @@
 import { AIDifficulty, DummyBehavior, FighterId, GameMode, GameSettings, StageId } from '../types';
 import { createMovelistForFighter, FIGHTER_PROFILES, STAGES } from '../data/fighters';
+import { getFighterPortraitDataURL } from '../entities/FighterRig';
 import { GameManager } from '../systems/GameManager';
 
 export class UIManager {
@@ -194,6 +195,35 @@ export class UIManager {
       this.game.arcadeStageIndex = 0;
       this.game.restartCurrentMatch();
     });
+
+    // Random Challenge (Random Player 1 + Random Player 2 + Random Stage)
+    const launchRandomChallenge = () => {
+      this.game.audio.playUIClick(860);
+      document.getElementById('screen-gameover')?.classList.add('hidden');
+      this.togglePauseMenu(false);
+
+      const allFighters: FighterId[] = ['modi', 'mamata', 'yogi', 'kejriwal', 'rahul'];
+      const p1Candidates = allFighters.filter((id) => id !== this.selectedP1);
+      const nextP1 = p1Candidates[Math.floor(Math.random() * p1Candidates.length)] || allFighters[0];
+
+      const p2Candidates = allFighters.filter((id) => id !== nextP1);
+      const nextP2 = p2Candidates[Math.floor(Math.random() * p2Candidates.length)] || allFighters[1];
+
+      const allStageIds: StageId[] = STAGES.map((s) => s.id);
+      const stageCandidates = allStageIds.filter((s) => s !== this.selectedStage);
+      const nextStage = stageCandidates[Math.floor(Math.random() * stageCandidates.length)] || allStageIds[0];
+
+      this.selectedP1 = nextP1;
+      this.selectedP2 = nextP2;
+      this.selectedStage = nextStage;
+      if (this.selectedMode === 'arcade') {
+        this.selectedMode = 'versus_cpu';
+      }
+      this.launchMatch();
+    };
+
+    document.getElementById('btn-gameover-random')?.addEventListener('click', launchRandomChallenge);
+    document.getElementById('btn-pause-random')?.addEventListener('click', launchRandomChallenge);
 
     document.getElementById('btn-gameover-charselect')?.addEventListener('click', () => {
       this.game.audio.playUIClick(600);
@@ -460,17 +490,23 @@ export class UIManager {
             : id === 'kejriwal'
             ? '🧹🧣'
             : '✋🧔';
+        const portraitUrl = getFighterPortraitDataURL(prof);
         const card = document.createElement('button');
         card.type = 'button';
         card.className = `fighter-card ${isSelected ? 'selected' : ''}`;
         card.style.setProperty('--fighter-accent', prof.colors.uiHex);
         card.innerHTML = `
-          <div style="display:flex;justify-content:space-between;align-items:center">
-            <div class="fighter-card-badge" style="background:${prof.colors.uiHex}">${prof.shortName}</div>
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+            <div style="display:flex;align-items:center;gap:8px">
+              <img src="${portraitUrl}" alt="${prof.name}" style="width:42px;height:42px;border-radius:50%;border:2px solid ${prof.colors.uiHex};object-fit:cover" />
+              <div>
+                <div class="fighter-card-badge" style="background:${prof.colors.uiHex}">${prof.shortName}</div>
+                <div class="fighter-card-name">${prof.name}</div>
+              </div>
+            </div>
             <span style="font-size:1.15rem">${avatarIcon}</span>
           </div>
-          <div class="fighter-card-name">${prof.name}</div>
-          <div class="fighter-card-title">${prof.title}</div>
+          <div class="fighter-card-title" style="margin-top:4px">${prof.title}</div>
           <div class="fighter-card-style">${prof.fightingStyle}</div>
           <div class="fighter-stats-row">
             <span>PWR ${prof.stats.power}</span>
@@ -639,6 +675,11 @@ export class UIManager {
     const p2Name = document.getElementById('hud-p2-name');
     if (p1Name) p1Name.textContent = p1.profile.name;
     if (p2Name) p2Name.textContent = p2.profile.name;
+
+    const p1Avatar = document.getElementById('hud-p1-avatar') as HTMLImageElement | null;
+    const p2Avatar = document.getElementById('hud-p2-avatar') as HTMLImageElement | null;
+    if (p1Avatar) p1Avatar.src = getFighterPortraitDataURL(p1.profile);
+    if (p2Avatar) p2Avatar.src = getFighterPortraitDataURL(p2.profile);
 
     const p1Sub = document.getElementById('hud-p1-title');
     const p2Sub = document.getElementById('hud-p2-title');

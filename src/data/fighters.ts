@@ -100,21 +100,28 @@ export const FIGHTER_PROFILES: Record<FighterId, FighterProfile> = {
     origin: 'Gorakhpur — Lucknow Expressway',
     signatureProp: 'bulldozer_blade',
     catchphrases: {
-      intro: 'Mitti Mein Mila Denge! Bulldozer Taiyaar Hai!',
-      win: 'Rom Rom Bhaiyo — System Aur Mafia Dono Saaf!',
-      rage: 'MITTI MEIN MILA DENGE!! JCB BULLDOZER SMASH!!',
-      hit: ['MITTI MEIN MILA DENGE!', 'BULLDOZER SHOT!', 'THOK DENGE!', 'SYSTEM FAAD DENGE!', 'BABA KA BULLDOZER!']
+      intro: 'Is Mafia Ko Mitti Mein Mila Denge! Bulldozer Taiyaar Hai!',
+      win: 'Aaj Se Tumhara Naam Badal Diya Jayega! Kaayde Mein Rahoge Toh Faayde Mein Rahoge!',
+      rage: 'MAFIYAON KO MITTI MEIN MILA DENGE!! BABA KA BULLDOZER!!',
+      hit: [
+        'MITTI MEIN MILA DENGE!',
+        'SHIMLA BANA DETA HOON!',
+        'AAJ SE TUMHARA NAAM...',
+        'THOK DIYA JAYEGA!',
+        'KAAYDE MEIN RAHOGE!'
+      ]
     },
     memeClips: {
-      select: '/sounds/yogi_meme.mp3',
-      intro: '/sounds/yogi_meme.mp3',
-      special: '/sounds/yogi_bulldozer.mp3',
-      rage: '/sounds/yogi_system.mp3',
-      win: '/sounds/yogi_system.mp3',
+      select: '/sounds/yogi_mitti.mp3',
+      intro: '/sounds/yogi_garmi.mp3',
+      special: '/sounds/yogi_thok.mp3',
+      rage: '/sounds/yogi_mitti.mp3',
+      win: '/sounds/yogi_naam.mp3',
       hitPool: [
-        '/sounds/yogi_meme.mp3',
-        '/sounds/yogi_bulldozer.mp3',
-        '/sounds/yogi_system.mp3'
+        '/sounds/yogi_mitti.mp3',
+        '/sounds/yogi_garmi.mp3',
+        '/sounds/yogi_naam.mp3',
+        '/sounds/yogi_thok.mp3'
       ]
     },
     stats: { power: 10, speed: 9, range: 9, drama: 10 },
@@ -334,11 +341,11 @@ export function createMovelistForFighter(fighterId: FighterId): Record<string, M
       throwName: 'VIP Helicopter Air-Drop Slam',
       powerCrush: 'Bulldozer Steel Blade Armor Charge',
       signatureSpecial: 'SPECIAL: JCB Bulldozer Demolition Charge',
-      crySpecial: 'MITTI MEIN MILA DENGE!! BABA KA BULLDOZER!!',
+      crySpecial: 'MAFIYAON KO MITTI MEIN MILA DENGE!! BABA KA BULLDOZER!!',
       rageArt: 'RAGE ART: Mitti Mein Mila Denge JCB Obliteration',
-      cryDf2: 'MITTI MEIN MILA DENGE!!',
-      cryLow: 'BULLDOZER CHALEGA!',
-      cryThrow: 'SYSTEM FAAD DENGE!'
+      cryDf2: 'IS MAFIA KO MITTI MEIN MILA DENGE!!',
+      cryLow: 'MAY-JUNE MEIN BHI SHIMLA BANA DETA HOON!',
+      cryThrow: 'AAJ SE TUMHARA NAAM BADAL DIYA JAYEGA!'
     },
     kejriwal: {
       jab1: 'RTI Notice Jab',

@@ -135,6 +135,7 @@
         <!-- Player 1 Health & Info -->
         <div class="fighter-hud-col p1-col">
           <div class="hud-name-row">
+            <img id="hud-p1-avatar" alt="P1 Portrait" style="width: 38px; height: 38px; border-radius: 50%; border: 2px solid #fde047; object-fit: cover" />
             <span id="hud-p1-name" class="hud-fighter-name">NARENDRA MODI</span>
             <span id="hud-p1-title" class="hud-fighter-sub">56-Inch Saffron Supreme</span>
             <span id="hud-p1-rage-tag" class="rage-pill hidden">RAGE! PRESS H</span>
@@ -162,6 +163,7 @@
         <!-- Player 2 Health & Info -->
         <div class="fighter-hud-col p2-col">
           <div class="hud-name-row">
+            <img id="hud-p2-avatar" alt="P2 Portrait" style="width: 38px; height: 38px; border-radius: 50%; border: 2px solid #00e5ff; object-fit: cover" />
             <span id="hud-p2-name" class="hud-fighter-name">MAMATA BANERJEE</span>
             <span id="hud-p2-title" class="hud-fighter-sub">Royal Bengal Hurricane</span>
             <span id="hud-p2-rage-tag" class="rage-pill hidden">RAGE ACTIVE!</span>
@@ -279,6 +281,15 @@
           </p>
           <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 8px">
             <button id="btn-gameover-rematch" type="button" class="btn-primary-cta">REMATCH (PLAY AGAIN)</button>
+            <button
+              id="btn-gameover-random"
+              type="button"
+              class="btn-instant-highlight"
+              style="text-align: center; align-items: center; padding: 12px 20px"
+            >
+              <span>🎲 NEXT CHALLENGE (RANDOM FIGHTERS &amp; MAP)</span>
+              <small>Instant Random Leaders + Random 3D Arena!</small>
+            </button>
             <button id="btn-gameover-charselect" type="button" class="menu-btn">👥 CHANGE LEADERS / STAGE</button>
             <button id="btn-gameover-mainmenu" type="button" class="menu-btn">🏠 RETURN TO MAIN MENU</button>
           </div>
@@ -295,6 +306,7 @@
       <div style="display: flex; flex-direction: column; gap: 10px">
         <button id="btn-pause-resume" type="button" class="btn-primary-cta">▶ RESUME BATTLE</button>
         <button id="btn-pause-restart" type="button" class="menu-btn">🔄 RESTART MATCH</button>
+        <button id="btn-pause-random" type="button" class="menu-btn">🎲 NEXT RANDOM CHALLENGE (RANDOM FIGHTERS &amp; MAP)</button>
         <button type="button" class="menu-btn" data-open-movelist>📜 VIEW MOVE LIST &amp; COMBOS</button>
         <button type="button" class="menu-btn" data-open-settings>⚙️ AUDIO &amp; MATCH SETTINGS</button>
         <button id="btn-pause-charselect" type="button" class="menu-btn">👥 CHARACTER &amp; STAGE SELECT</button>
