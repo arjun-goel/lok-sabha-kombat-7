@@ -12,6 +12,7 @@ interface ShockwaveRing {
   life: number;
   maxLife: number;
   maxScale: number;
+  velocity?: THREE.Vector3;
 }
 
 export class VFXManager {
@@ -115,6 +116,79 @@ export class VFXManager {
     }
   }
 
+  /**
+   * Spawns dramatic 3D Signature Special Move VFX (e.g., Modi's "56-Inch Mann Ki Baat Lotus Blast"!)
+   */
+  public spawnSignatureSpecialVFX(
+    position: THREE.Vector3,
+    facingSign: 1 | -1,
+    fighterId: string,
+    colorHex: number
+  ): void {
+    const isModi = fighterId === 'modi';
+    const primaryColor = isModi ? 0xff7700 : colorHex;
+    const accentColor = isModi ? 0xfde047 : 0xffffff;
+
+    // 1. Expanding Ground Lotus Mandala / Aura Rings
+    for (let i = 0; i < 3; i++) {
+      const segments = isModi ? 8 : 24; // 8-petal octagonal Lotus geometry for Modi!
+      const ringGeo = new THREE.RingGeometry(0.22 + i * 0.08, 0.42 + i * 0.1, segments);
+      const ringMat = new THREE.MeshBasicMaterial({
+        color: i % 2 === 0 ? primaryColor : accentColor,
+        side: THREE.DoubleSide,
+        transparent: true,
+        opacity: 0.95,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false
+      });
+      const ringMesh = new THREE.Mesh(ringGeo, ringMat);
+      ringMesh.rotation.x = Math.PI / 2;
+      ringMesh.rotation.z = (i * Math.PI) / 8;
+      ringMesh.position.set(position.x, 0.05 + i * 0.03, position.z);
+      this.scene.add(ringMesh);
+
+      this.rings.push({
+        mesh: ringMesh,
+        life: 0,
+        maxLife: 0.5 + i * 0.1,
+        maxScale: 4.5 + i * 1.2
+      });
+    }
+
+    // 2. Forward-Traveling "Mann Ki Baat" Sonic Blast Rings!
+    for (let w = 0; w < 4; w++) {
+      const sonicGeo = new THREE.RingGeometry(0.18, 0.34, isModi ? 8 : 20);
+      const sonicMat = new THREE.MeshBasicMaterial({
+        color: w % 2 === 0 ? accentColor : primaryColor,
+        side: THREE.DoubleSide,
+        transparent: true,
+        opacity: 0.95,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false
+      });
+      const sonicMesh = new THREE.Mesh(sonicGeo, sonicMat);
+      sonicMesh.rotation.y = Math.PI / 2;
+      sonicMesh.position.set(
+        position.x + facingSign * (0.45 + w * 0.28),
+        position.y + 1.25,
+        position.z
+      );
+      this.scene.add(sonicMesh);
+
+      this.rings.push({
+        mesh: sonicMesh,
+        life: 0,
+        maxLife: 0.42,
+        maxScale: 3.8 + w * 0.6,
+        velocity: new THREE.Vector3(facingSign * (4.2 + w * 0.8), 0, 0)
+      });
+    }
+
+    // 3. Burst of Swirling Saffron Lotus Petals & Golden Energy Sparks
+    const centerPos = new THREE.Vector3(position.x + facingSign * 0.6, position.y + 1.25, position.z);
+    this.spawnHitSparks(centerPos, primaryColor, 'rage');
+  }
+
   public spawnGroundDust(x: number, z: number, colorHex = 0xe2e8f0): void {
     const ringGeo = new THREE.RingGeometry(0.2, 0.55, 24);
     const ringMat = new THREE.MeshBasicMaterial({
@@ -167,6 +241,9 @@ export class VFXManager {
         (r.mesh.material as THREE.Material).dispose();
         this.rings.splice(i, 1);
         continue;
+      }
+      if (r.velocity) {
+        r.mesh.position.addScaledVector(r.velocity, dt);
       }
       const progress = r.life / r.maxLife;
       const s = THREE.MathUtils.lerp(1, r.maxScale, progress);

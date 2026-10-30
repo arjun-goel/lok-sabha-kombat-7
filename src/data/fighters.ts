@@ -276,6 +276,8 @@ export function createMovelistForFighter(fighterId: FighterId): Record<string, M
     hop4: string;
     throwName: string;
     powerCrush: string;
+    signatureSpecial: string;
+    crySpecial: string;
     rageArt: string;
     cryDf2: string;
     cryLow: string;
@@ -293,6 +295,8 @@ export function createMovelistForFighter(fighterId: FighterId): Record<string, M
       hop4: 'Wah Modiji Wah Flying Kick',
       throwName: 'Kya Takleef Hai Bhai Bear-Hug',
       powerCrush: '56-Inch Chest Armor Impact',
+      signatureSpecial: 'SPECIAL: 56-Inch Mann Ki Baat Lotus Blast',
+      crySpecial: 'MITRON!! 8 BAJE SE... LAUDEYAM BHOJYAM!!',
       rageArt: 'RAGE ART: Andren Rajyam Laudeyam Bhojyam Finale',
       cryDf2: 'LAUDEYAM BHOJYAM!!',
       cryLow: 'SAB CHANGASI!',
@@ -310,6 +314,8 @@ export function createMovelistForFighter(fighterId: FighterId): Record<string, M
       hop4: 'Dumba-Dumba Bicycle Kick',
       throwName: 'Ei Bosun Toh Chappal Throw',
       powerCrush: 'Bamba-Bamba Street Barricade Charge',
+      signatureSpecial: 'SPECIAL: Humba Humba Chappal Hurricane',
+      crySpecial: 'HUMBA HUMBA! RUMBA RUMBA! KHELA HOBE!!',
       rageArt: 'RAGE ART: Humba Humba Rumba Rumba Cyclone',
       cryDf2: 'HUMBA HUMBA RUMBA RUMBA!!',
       cryLow: 'KAMBA KAMBA!',
@@ -327,6 +333,8 @@ export function createMovelistForFighter(fighterId: FighterId): Record<string, M
       hop4: 'Garud Flying Kick Launcher',
       throwName: 'VIP Helicopter Air-Drop Slam',
       powerCrush: 'Bulldozer Steel Blade Armor Charge',
+      signatureSpecial: 'SPECIAL: JCB Bulldozer Demolition Charge',
+      crySpecial: 'MITTI MEIN MILA DENGE!! BABA KA BULLDOZER!!',
       rageArt: 'RAGE ART: Mitti Mein Mila Denge JCB Obliteration',
       cryDf2: 'MITTI MEIN MILA DENGE!!',
       cryLow: 'BULLDOZER CHALEGA!',
@@ -344,6 +352,8 @@ export function createMovelistForFighter(fighterId: FighterId): Record<string, M
       hop4: 'Dharna Hopkick Launcher',
       throwName: 'Pareshan Ho Gaye Grab & Toss',
       powerCrush: 'Winter Muffler Armor Shield',
+      signatureSpecial: 'SPECIAL: Toh Kar Na Jhadu Tornado',
+      crySpecial: 'PARESHAN HO GAYE HUM... TOH KAR NA!!',
       rageArt: 'RAGE ART: Toh Kar Na 300-Volt Tornado',
       cryDf2: 'TOH KAR NA!!',
       cryLow: 'PARESHAN HO GAYE HUM!',
@@ -361,6 +371,8 @@ export function createMovelistForFighter(fighterId: FighterId): Record<string, M
       hop4: 'Khatam Tata Goodbye Jump Kick',
       throwName: 'Parliament Wink & Hug Suplex',
       powerCrush: 'White T-Shirt Zero-Degree Armor',
+      signatureSpecial: 'SPECIAL: Khatakhat-Khatakhat Sonic Boom',
+      crySpecial: 'KHATAM! TATA! GOODBYE! GAYA!!',
       rageArt: 'RAGE ART: Khatam Tata Goodbye Gaya Barrage',
       cryDf2: 'MAZA AAYA!!',
       cryLow: 'KHATAM! TATA!',
@@ -807,6 +819,38 @@ export function createMovelistForFighter(fighterId: FighterId): Record<string, M
       sfxType: 'electric',
       sparkColor: 0xff0055,
       forwardImpulse: 0.9
+    },
+    // E / F: 1-BUTTON SIGNATURE SPECIAL MOVE!
+    signature_special: {
+      id: 'signature_special',
+      name: c.signatureSpecial,
+      battleCry: c.crySpecial,
+      commandNotation: 'E / F (Special)',
+      inputHint: 'Press E or F (1-Tap Signature Special!)',
+      hitLevel: 'MID',
+      startupFrames: 14,
+      activeFrames: 9,
+      recoveryFrames: 21,
+      damage: Math.round((fighterId === 'modi' ? 36 : 33) * dmg),
+      chipDamage: 8,
+      hitStunFrames: 46,
+      blockStunFrames: 13,
+      pushbackOnHit: 1.9,
+      pushbackOnBlock: 0.9,
+      powerCrush: true,
+      signatureSpecial: true,
+      launches: true,
+      launchVelocityY: 9.1,
+      launchVelocityX: 2.1,
+      knockdown: true,
+      homing: true,
+      activeLimb: 'bothHands',
+      hitboxRadius: 1.15,
+      hitboxOffsetForward: 1.45,
+      hitboxOffsetY: 1.28,
+      sfxType: 'electric',
+      sparkColor: glow,
+      forwardImpulse: 1.15
     },
     rage_art: {
       id: 'rage_art',

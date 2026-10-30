@@ -134,7 +134,7 @@ export class GameManager {
 
     window.setTimeout(() => {
       if (!this.isInMenu && this.roundPhase === 'INTRO') {
-        this.callbacks.onAnnounceBanner('FIGHT!!', 'HUMBA HUMBA • LAUDEYAM BHOJYAM!', '#00e5ff', 850);
+        this.callbacks.onAnnounceBanner('FIGHT!!', 'PRESS E FOR SPECIAL MOVE • MASH J FOR COMBO!', '#00e5ff', 850);
         this.audio.playCrowdCheer();
       }
     }, 1250);
@@ -198,6 +198,7 @@ export class GameManager {
         rp: false,
         lk: false,
         rk: false,
+        special: false,
         grab: false,
         rage: false,
         block: false
@@ -269,6 +270,7 @@ export class GameManager {
       rp: false,
       lk: false,
       rk: false,
+      special: false,
       grab: false,
       rage: false,
       block: false
@@ -310,6 +312,28 @@ export class GameManager {
     if (fighter.playerIndex === 1) {
       this.lastMoveUsedText = `${move.name} [${move.commandNotation}] (${move.hitLevel} • ${move.startupFrames}f)`;
     }
+
+    if (move.signatureSpecial) {
+      // Dramatic Signature Special Move Presentation (Modi's 56-Inch Mann Ki Baat Lotus Blast, etc.)!
+      this.sceneMgr.triggerDramaticZoom(1.52);
+      this.sceneMgr.triggerCameraShake(0.24, 0.22);
+      this.vfx.spawnSignatureSpecialVFX(fighter.position, fighter.facingSign, fighter.id, fighter.profile.colors.glow);
+      this.callbacks.onCalloutBubble(
+        fighter.playerIndex,
+        move.battleCry || 'SIGNATURE SPECIAL!!',
+        `🌟 ${move.name.toUpperCase()}`
+      );
+      this.callbacks.onAnnounceBanner(
+        fighter.id === 'modi' ? '🪷 56-INCH LOTUS BLAST!!' : `🌟 ${fighter.profile.shortName} SPECIAL!`,
+        move.battleCry || move.name,
+        fighter.profile.colors.uiHex,
+        1150
+      );
+      // Play iconic voice dialogue (Modi's "Andren Rajyam Laudeyam Bhojyam" clip!)
+      this.audio.playMemeClip(fighter.profile.memeClips.rage, true);
+      return;
+    }
+
     if (move.battleCry) {
       this.callbacks.onCalloutBubble(fighter.playerIndex, move.battleCry, move.name);
       if (move.rageArt) {
@@ -445,29 +469,35 @@ export class GameManager {
     this.lastFrameAdvantageText = `${frameAdvantage >= 0 ? '+' : ''}${frameAdvantage} on Hit${isCounterHit ? ' (COUNTER!)' : ''}`;
 
     // Hitstop & Camera Shake
-    const isBigHit = move.sfxType === 'electric' || move.sfxType === 'rage' || move.sfxType === 'heavy' || isCounterHit;
-    this.hitstopFrames = move.rageArt ? 12 : isBigHit ? 7 : 4;
-    this.sceneMgr.triggerCameraShake(move.rageArt ? 0.42 : isBigHit ? 0.22 : 0.09, isBigHit ? 0.24 : 0.12);
+    const isBigHit =
+      move.signatureSpecial || move.sfxType === 'electric' || move.sfxType === 'rage' || move.sfxType === 'heavy' || isCounterHit;
+    this.hitstopFrames = move.rageArt ? 12 : move.signatureSpecial ? 10 : isBigHit ? 7 : 4;
+    this.sceneMgr.triggerCameraShake(
+      move.rageArt ? 0.42 : move.signatureSpecial ? 0.34 : isBigHit ? 0.22 : 0.09,
+      isBigHit ? 0.24 : 0.12
+    );
 
     this.audio.playHitImpact(move.sfxType);
     this.vfx.spawnHitSparks(
       sparkPos,
       move.sparkColor || attacker.profile.colors.glow,
-      move.rageArt ? 'rage' : move.sfxType === 'throw' ? 'heavy' : move.sfxType
+      move.rageArt || move.signatureSpecial ? 'rage' : move.sfxType === 'throw' ? 'heavy' : move.sfxType
     );
 
     // Fun Catchphrase Comic Callout & Real Meme Voice on Big Hits / Counter Hits / Combos!
     if (isCounterHit || move.launches || move.sfxType === 'throw' || move.sfxType === 'heavy' || defender.comboHitsTaken >= 2) {
       const phrases = attacker.profile.catchphrases.hit;
-      const randomCry = phrases[Math.floor(Math.random() * phrases.length)];
+      const randomCry = move.signatureSpecial && move.battleCry ? move.battleCry : phrases[Math.floor(Math.random() * phrases.length)];
       this.callbacks.onCalloutBubble(
         attacker.playerIndex,
         isCounterHit ? `COUNTER! ${randomCry}` : randomCry,
         `${defender.comboHitsTaken} HIT (${defender.comboDamageTaken} DMG)`
       );
-      const pool = attacker.profile.memeClips.hitPool;
-      const clipUrl = pool[Math.floor(Math.random() * pool.length)];
-      this.audio.playMemeClip(clipUrl, false);
+      if (!move.signatureSpecial) {
+        const pool = attacker.profile.memeClips.hitPool;
+        const clipUrl = pool[Math.floor(Math.random() * pool.length)];
+        this.audio.playMemeClip(clipUrl, false);
+      }
     }
 
     // Check KO!

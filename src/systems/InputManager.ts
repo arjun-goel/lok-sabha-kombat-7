@@ -38,10 +38,14 @@ export class InputManager {
   }
 
   /**
-   * Triggers a 1-tap mobile special combo macro (e.g. df+2 Sky Launcher, d+3 Low Sweep, uf+4 Hopkick)
+   * Triggers a 1-tap mobile/PC special combo macro (e.g. Signature Special, Sky Launcher, Low Sweep, Hopkick, 3-Hit Combo)
    */
-  public triggerMobileMacro(macroType: 'launcher_df2' | 'low_d3' | 'hopkick_uf4' | 'combo_121'): void {
-    if (macroType === 'launcher_df2') {
+  public triggerMobileMacro(
+    macroType: 'signature_special' | 'launcher_df2' | 'low_d3' | 'hopkick_uf4' | 'combo_121'
+  ): void {
+    if (macroType === 'signature_special') {
+      this.macroQueue = [{ inputs: { special: true }, frames: 4 }];
+    } else if (macroType === 'launcher_df2') {
       this.macroQueue = [
         { inputs: { down: true, forward: true }, frames: 2 },
         { inputs: { down: true, forward: true, rp: true }, frames: 4 }
@@ -92,12 +96,38 @@ export class InputManager {
       up,
       down,
       sidestepUp: this.keysDown.has('KeyQ') || !!this.virtualInputs['ssUp'],
-      sidestepDown: this.keysDown.has('KeyE') || !!this.virtualInputs['ssDown'],
-      lp: this.keysDown.has('KeyU') || this.keysDown.has('KeyJ') || !!this.virtualInputs['lp'] || !!macroState['lp'],
-      rp: this.keysDown.has('KeyI') || this.keysDown.has('KeyK') || !!this.virtualInputs['rp'] || !!macroState['rp'],
-      lk: this.keysDown.has('KeyO') || this.keysDown.has('KeyL') || !!this.virtualInputs['lk'] || !!macroState['lk'],
-      rk: this.keysDown.has('KeyP') || this.keysDown.has('Semicolon') || !!this.virtualInputs['rk'] || !!macroState['rk'],
-      grab: this.keysDown.has('KeyG') || !!this.virtualInputs['grab'],
+      sidestepDown: this.keysDown.has('KeyZ') || this.keysDown.has('KeyC') || !!this.virtualInputs['ssDown'],
+      lp:
+        this.keysDown.has('KeyJ') ||
+        this.keysDown.has('KeyU') ||
+        this.keysDown.has('Digit1') ||
+        !!this.virtualInputs['lp'] ||
+        !!macroState['lp'],
+      rp:
+        this.keysDown.has('KeyK') ||
+        this.keysDown.has('KeyI') ||
+        this.keysDown.has('Digit2') ||
+        !!this.virtualInputs['rp'] ||
+        !!macroState['rp'],
+      lk:
+        this.keysDown.has('KeyL') ||
+        this.keysDown.has('KeyO') ||
+        this.keysDown.has('Digit3') ||
+        !!this.virtualInputs['lk'] ||
+        !!macroState['lk'],
+      rk:
+        this.keysDown.has('Semicolon') ||
+        this.keysDown.has('KeyP') ||
+        this.keysDown.has('Digit4') ||
+        !!this.virtualInputs['rk'] ||
+        !!macroState['rk'],
+      special:
+        this.keysDown.has('KeyE') ||
+        this.keysDown.has('KeyF') ||
+        this.keysDown.has('Digit5') ||
+        !!this.virtualInputs['special'] ||
+        !!macroState['special'],
+      grab: this.keysDown.has('KeyG') || this.keysDown.has('KeyR') || !!this.virtualInputs['grab'],
       rage: this.keysDown.has('KeyH') || this.keysDown.has('Space') || !!this.virtualInputs['rage'],
       block: this.keysDown.has('ShiftLeft') || !!this.virtualInputs['block']
     };
@@ -123,6 +153,7 @@ export class InputManager {
       rp: this.keysDown.has('Numpad5') || this.keysDown.has('Digit8'),
       lk: this.keysDown.has('Numpad1') || this.keysDown.has('Digit9'),
       rk: this.keysDown.has('Numpad2') || this.keysDown.has('Digit0'),
+      special: this.keysDown.has('Numpad0') || this.keysDown.has('Enter'),
       grab: this.keysDown.has('Numpad6') || this.keysDown.has('Minus'),
       rage: this.keysDown.has('Numpad3') || this.keysDown.has('Equal'),
       block: this.keysDown.has('ShiftRight')

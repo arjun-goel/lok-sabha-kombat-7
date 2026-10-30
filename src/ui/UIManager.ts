@@ -220,7 +220,9 @@ export class UIManager {
           // Ignore pointer capture errors
         }
         if ('vibrate' in navigator) {
-          try { navigator.vibrate(12); } catch {}
+          try {
+            navigator.vibrate(code === 'special' ? 25 : 12);
+          } catch {}
         }
         this.game.inputMgr.setVirtualButton(code, true);
         btn.classList.add('active-press');
@@ -238,11 +240,18 @@ export class UIManager {
 
     // 1-Tap Mobile Special Combo Macros (df+2 Sky Launcher, d+3 Low Sweep)
     document.querySelectorAll<HTMLElement>('[data-macro]').forEach((btn) => {
-      const macro = btn.dataset.macro as 'launcher_df2' | 'low_d3' | 'hopkick_uf4' | 'combo_121';
+      const macro = btn.dataset.macro as
+        | 'signature_special'
+        | 'launcher_df2'
+        | 'low_d3'
+        | 'hopkick_uf4'
+        | 'combo_121';
       btn.addEventListener('pointerdown', (e) => {
         e.preventDefault();
         if ('vibrate' in navigator) {
-          try { navigator.vibrate(22); } catch {}
+          try {
+            navigator.vibrate(22);
+          } catch {}
         }
         this.game.inputMgr.triggerMobileMacro(macro);
         btn.classList.add('active-press');
@@ -534,13 +543,15 @@ export class UIManager {
       tabsContainer.appendChild(tab);
     });
 
-    const moves = Object.values(createMovelistForFighter(fighterId));
+    const moves = Object.values(createMovelistForFighter(fighterId)).sort((a, b) =>
+      a.signatureSpecial ? -1 : b.signatureSpecial ? 1 : 0
+    );
     listContainer.innerHTML = moves
       .map(
         (m) => `
-      <tr>
+      <tr style="${m.signatureSpecial ? 'background: rgba(255, 119, 0, 0.16);' : ''}">
         <td>
-          <div class="move-row-name">${m.name}</div>
+          <div class="move-row-name">${m.signatureSpecial ? '🌟 ' : ''}${m.name}</div>
           ${m.battleCry ? `<div class="move-row-cry">"${m.battleCry}"</div>` : ''}
         </td>
         <td><kbd class="kbd-badge">${m.inputHint}</kbd></td>
@@ -548,6 +559,7 @@ export class UIManager {
         <td>${m.damage} DMG</td>
         <td>${m.startupFrames}f</td>
         <td>
+          ${m.signatureSpecial ? '<span class="prop-tag" style="color:#fde047;border:1px solid #fde047">🌟 SPECIAL</span>' : ''}
           ${m.launches ? '<span class="prop-tag tag-launch">LAUNCHER</span>' : ''}
           ${m.tailspin ? '<span class="prop-tag tag-screw">TAILSPIN</span>' : ''}
           ${m.powerCrush ? '<span class="prop-tag tag-armor">POWER CRUSH</span>' : ''}

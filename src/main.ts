@@ -1,4 +1,3 @@
-import { inject } from '@vercel/analytics';
 import { GameSettings } from './types';
 import { SceneManager } from './scene/SceneManager';
 import { AudioEngine } from './audio/AudioEngine';
@@ -30,9 +29,22 @@ function loadSettings(): GameSettings {
   return { ...DEFAULT_SETTINGS };
 }
 
+function injectVercelAnalytics(): void {
+  try {
+    if (typeof window !== 'undefined' && !document.querySelector('script[src*="/_vercel/insights/script.js"]')) {
+      const script = document.createElement('script');
+      script.defer = true;
+      script.src = '/_vercel/insights/script.js';
+      document.head.appendChild(script);
+    }
+  } catch {
+    // Ignore outside Vercel environment
+  }
+}
+
 function bootstrap(): void {
-  // Initialize Vercel Web Analytics
-  inject();
+  // Initialize Vercel Web Analytics safely
+  injectVercelAnalytics();
 
   const container = document.getElementById('webgl-container');
   if (!container) {

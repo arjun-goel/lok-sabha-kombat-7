@@ -11,7 +11,7 @@ export interface MoveDefinition {
   name: string;
   battleCry?: string;      // Catchphrase shouted or shown in comic bubble!
   commandNotation: string; // e.g., "1, 2, 1" or "df+2"
-  inputHint: string;       // e.g., "U, I, U" or "S+D + I"
+  inputHint: string;       // e.g., "J / U" or "E (Special)"
   hitLevel: HitLevel;
   startupFrames: number;
   activeFrames: number;
@@ -29,7 +29,8 @@ export interface MoveDefinition {
   tailspin?: boolean;      // Tekken 7 "Screw / Tailspin" extender in juggle!
   homing?: boolean;        // Tracks sidestepping opponents
   powerCrush?: boolean;    // Absorbs mid/high hits during active startup
-  rageArt?: boolean;       // Only usable in Rage (<25% HP)
+  rageArt?: boolean;       // Only usable in Rage (<28% HP)
+  signatureSpecial?: boolean; // Character's unique signature special move!
   activeLimb: 'leftHand' | 'rightHand' | 'leftFoot' | 'rightFoot' | 'torso' | 'bothHands';
   hitboxRadius: number;
   hitboxOffsetForward: number;
@@ -109,11 +110,12 @@ export interface InputState {
   down: boolean;
   sidestepUp: boolean;
   sidestepDown: boolean;
-  lp: boolean;       // 1 (Left Punch)
-  rp: boolean;       // 2 (Right Punch)
-  lk: boolean;       // 3 (Left Kick)
-  rk: boolean;       // 4 (Right Kick)
-  grab: boolean;     // 1+3 / Throw
-  rage: boolean;     // Rage Art / Power Crush
-  block: boolean;    // Dedicated guard helper
+  lp: boolean;       // 1 (Punch / Auto-Combo)
+  rp: boolean;       // 2 (Heavy / Sky Launcher)
+  lk: boolean;       // 3 (Kick / Low Sweep)
+  rk: boolean;       // 4 (Roundhouse / Hopkick)
+  special: boolean;  // E / F (Unique Character Special Move!)
+  grab: boolean;     // G (Unblockable Throw)
+  rage: boolean;     // H / Space (Power Crush / Rage Art)
+  block: boolean;    // Shift (Dedicated Guard)
 }

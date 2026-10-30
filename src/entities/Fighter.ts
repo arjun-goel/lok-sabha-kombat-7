@@ -64,6 +64,7 @@ export class Fighter {
     rp: false,
     lk: false,
     rk: false,
+    special: false,
     grab: false,
     rage: false,
     block: false
@@ -154,6 +155,7 @@ export class Fighter {
       rp: input.rp && !this.prevInput.rp,
       lk: input.lk && !this.prevInput.lk,
       rk: input.rk && !this.prevInput.rk,
+      special: input.special && !this.prevInput.special,
       grab: (input.grab && !this.prevInput.grab) || (input.lp && input.lk && (!this.prevInput.lp || !this.prevInput.lk)),
       rage: input.rage && !this.prevInput.rage,
       ssUp: input.sidestepUp && !this.prevInput.sidestepUp,
@@ -257,7 +259,7 @@ export class Fighter {
         this.velocity.y -= 21.0 * dt;
 
         // Jumping kick / punch
-        if (justPressed.rk || justPressed.lk) {
+        if (justPressed.rk || justPressed.lk || justPressed.rp) {
           this.startAttack(this.moves.hopkick_uf4);
           startedMove = this.moves.hopkick_uf4;
         }
@@ -292,16 +294,19 @@ export class Fighter {
           this.position.y = Math.sin(progress * Math.PI) * 0.72;
         }
 
-        // Check string cancel input buffering
-        if (m.cancelInto && m.cancelInto.length > 0 && this.moveFrame >= 4) {
+        // Check string cancel input buffering (supports BOTH classic inputs AND easy 1-button auto-combo mashing!)
+        if (m.cancelInto && m.cancelInto.length > 0 && this.moveFrame >= 3) {
           for (const nextId of m.cancelInto) {
-            if (nextId.endsWith('_2') && (justPressed.rp || (nextId === 'jab_1_2' && justPressed.rp))) {
+            if (
+              nextId.endsWith('_2') &&
+              (justPressed.rp || (nextId === 'jab_1_2' && justPressed.lp) || (nextId === 'low_d3_2' && justPressed.lk))
+            ) {
               this.queuedCancelMoveId = nextId;
-            } else if (nextId.endsWith('_1') && justPressed.lp) {
+            } else if (nextId.endsWith('_1') && (justPressed.lp || justPressed.rp)) {
               this.queuedCancelMoveId = nextId;
-            } else if (nextId.endsWith('_3') && justPressed.lk) {
+            } else if (nextId.endsWith('_3') && (justPressed.lk || (nextId === 'heavy_2_3' && justPressed.rp))) {
               this.queuedCancelMoveId = nextId;
-            } else if (nextId.endsWith('_4') && justPressed.rk) {
+            } else if (nextId.endsWith('_4') && (justPressed.rk || (nextId === 'kick_3_4' && justPressed.lk))) {
               this.queuedCancelMoveId = nextId;
             }
           }
@@ -408,8 +413,13 @@ export class Fighter {
 
   private resolveNeutralAttack(
     input: InputState,
-    justPressed: { lp: boolean; rp: boolean; lk: boolean; rk: boolean; grab: boolean; rage: boolean }
+    justPressed: { lp: boolean; rp: boolean; lk: boolean; rk: boolean; special: boolean; grab: boolean; rage: boolean }
   ): MoveDefinition | null {
+    // 1-Button Character Signature Special Move (E / F on PC, 🌟 SPECIAL button on mobile)
+    if (justPressed.special) {
+      return this.moves.signature_special;
+    }
+
     if (justPressed.rage) {
       if (this.isRage) {
         this.rageArtUsedThisRound = true;
@@ -423,7 +433,8 @@ export class Fighter {
     }
 
     if (justPressed.rp) {
-      if (input.down && input.forward) {
+      // Easy Sky Launcher: Down + Heavy (S+K / S+I) OR Down+Forward + Heavy!
+      if (input.down) {
         return this.moves.launcher_df2;
       }
       if (input.forward) {
@@ -444,7 +455,7 @@ export class Fighter {
     }
 
     if (justPressed.rk) {
-      if (input.up) {
+      if (input.up || input.forward) {
         return this.moves.hopkick_uf4;
       }
       if (input.down) {
@@ -494,6 +505,7 @@ export class Fighter {
     j.hips.rotation.set(0, 0, 0);
     j.torso.rotation.set(0, 0, 0);
     j.chest.rotation.set(0, 0, 0);
+    j.chest.scale.set(1, 1, 1);
     j.head.rotation.set(0, 0, 0);
     j.leftShoulder.rotation.set(0, 0, 0);
     j.leftElbow.rotation.set(0, 0, 0);
@@ -648,6 +660,57 @@ export class Fighter {
         w = 1.0 - (this.moveFrame - activeEnd) / Math.max(1, m.recoveryFrames);
       }
       w = THREE.MathUtils.clamp(w, 0, 1);
+
+      // Unique Character Signature Special Move Animation!
+      if (m.signatureSpecial) {
+        if (this.id === 'modi') {
+          // MODI'S SIGNATURE SPECIAL: "56-Inch Mann Ki Baat Lotus Blast"!
+          if (this.moveFrame <= m.startupFrames) {
+            // Phase 1: Expand 56-Inch Chest & Open Both Arms Wide in Iconic "MITRON!!" Rally Pose
+            const p = this.moveFrame / Math.max(1, m.startupFrames);
+            const chestExpand = 1 + 0.34 * Math.sin(p * Math.PI);
+            j.chest.scale.set(chestExpand, 1 + 0.16 * p, chestExpand);
+            j.hips.position.y = 0.94 + Math.sin(p * Math.PI) * 0.14;
+            j.chest.rotation.x = -0.32 * p;
+            j.head.rotation.x = -0.25 * p;
+            // Spread arms wide open like addressing a massive stadium
+            j.leftShoulder.rotation.set(-1.35 * p, 0.65 * p, 0.95 * p);
+            j.leftElbow.rotation.x = -0.35 * p;
+            j.rightShoulder.rotation.set(-1.45 * p, -0.65 * p, -0.95 * p);
+            j.rightElbow.rotation.x = -0.35 * p;
+          } else if (this.moveFrame <= activeEnd) {
+            // Phase 2: Thrust Golden Lotus Mic & Double Saffron Palm Shockwave Forward with 360° Spin!
+            const activeProgress = (this.moveFrame - m.startupFrames) / Math.max(1, m.activeFrames);
+            j.chest.scale.set(1.26, 1.12, 1.26);
+            j.hips.position.y = 1.04;
+            j.hips.rotation.y = activeProgress * Math.PI * 2;
+            j.chest.rotation.x = 0.38;
+            j.leftShoulder.rotation.set(-1.72, -0.28, 0.12);
+            j.rightShoulder.rotation.set(-1.78, 0.28, -0.12);
+            j.leftElbow.rotation.x = -0.1;
+            j.rightElbow.rotation.x = -0.1;
+          } else {
+            // Phase 3: Heroic Landing & Chest Pride Recovery
+            j.chest.scale.set(1 + 0.15 * w, 1, 1 + 0.15 * w);
+            j.chest.rotation.x = 0.2 * w;
+            j.leftShoulder.rotation.set(-1.2 * w, 0, 0.3 * w);
+            j.rightShoulder.rotation.set(-1.2 * w, 0, -0.3 * w);
+          }
+          return;
+        }
+
+        // Dramatic spinning power signature animation for other fighters
+        j.hips.position.y = 0.98 + Math.sin(w * Math.PI) * 0.22;
+        if (this.moveFrame <= activeEnd) {
+          j.hips.rotation.y = (this.moveFrame / activeEnd) * Math.PI * 2;
+        }
+        j.chest.rotation.x = 0.32 * w;
+        j.leftShoulder.rotation.set(-1.75 * w, -0.2 * w, 0.35 * w);
+        j.rightShoulder.rotation.set(-1.85 * w, 0.2 * w, -0.35 * w);
+        j.leftElbow.rotation.x = -0.18;
+        j.rightElbow.rotation.x = -0.18;
+        return;
+      }
 
       if (m.activeLimb === 'leftHand') {
         j.hips.rotation.y = 0.55 * w;

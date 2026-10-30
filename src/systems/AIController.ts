@@ -14,6 +14,7 @@ export class AIController {
     | 'HOPKICK'
     | 'THROW'
     | 'POWER_CRUSH'
+    | 'SIGNATURE_SPECIAL'
     | 'JUGGLE_FOLLOWUP'
     | 'SIDESTEP' = 'IDLE';
   private planTicksRemaining = 0;
@@ -37,6 +38,7 @@ export class AIController {
       rp: false,
       lk: false,
       rk: false,
+      special: false,
       grab: false,
       rage: false,
       block: false
@@ -146,6 +148,9 @@ export class AIController {
       case 'POWER_CRUSH':
         if (this.planTicksRemaining === 3) empty.rage = true;
         break;
+      case 'SIGNATURE_SPECIAL':
+        if (this.planTicksRemaining === 3) empty.special = true;
+        break;
     }
 
     return empty;
@@ -175,19 +180,22 @@ export class AIController {
     }
 
     const roll = Math.random();
-    if (roll < 0.28) {
+    if (roll < 0.25) {
       this.activePlan = 'STRING_121';
       this.planTicksRemaining = 20;
-    } else if (roll < 0.48) {
+    } else if (roll < 0.44) {
       this.activePlan = 'LAUNCHER_DF2';
       this.planTicksRemaining = 6;
-    } else if (roll < 0.66) {
+    } else if (roll < 0.60) {
       this.activePlan = 'LOW_SWEEP';
       this.planTicksRemaining = 10;
-    } else if (roll < 0.80) {
+    } else if (roll < 0.74) {
       this.activePlan = 'HOPKICK';
       this.planTicksRemaining = 6;
-    } else if (roll < 0.92 && dist < 1.35) {
+    } else if (roll < 0.86) {
+      this.activePlan = 'SIGNATURE_SPECIAL';
+      this.planTicksRemaining = 6;
+    } else if (roll < 0.94 && dist < 1.35) {
       this.activePlan = 'THROW';
       this.planTicksRemaining = 5;
     } else {
