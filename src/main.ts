@@ -1,3 +1,4 @@
+import { inject } from '@vercel/analytics';
 import { GameSettings } from './types';
 import { SceneManager } from './scene/SceneManager';
 import { AudioEngine } from './audio/AudioEngine';
@@ -30,6 +31,9 @@ function loadSettings(): GameSettings {
 }
 
 function bootstrap(): void {
+  // Initialize Vercel Web Analytics
+  inject();
+
   const container = document.getElementById('webgl-container');
   if (!container) {
     throw new Error('Missing #webgl-container element');
